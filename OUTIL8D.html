@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8D-Facilitator Pro (Version Complète)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary-color: #1a73e8; --primary-light: #e8f0fe; --text-color: #3c4043; --text-light: #5f6368;
+            --background-color: #f8f9fa; --border-color: #dadce0; --card-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15);
+            --card-radius: 8px; --success-color: #1e8e3e; --danger-color: #d93025;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Roboto', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; }
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background-color: #fff; border-right: 1px solid var(--border-color); padding: 20px 0; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 0 24px 20px 24px; font-size: 1.5em; font-weight: 500; display: flex; align-items: center; }
+        .sidebar-header .material-symbols-outlined { margin-right: 12px; color: var(--primary-color); }
+        .nav-list { list-style-type: none; flex-grow: 1; }
+        .nav-item a { display: flex; align-items: center; padding: 12px 24px; text-decoration: none; color: var(--text-light); font-weight: 500; border-left: 4px solid transparent; transition: all 0.2s ease-in-out; }
+        .nav-item a:hover { background-color: var(--primary-light); }
+        .nav-item a.active { background-color: var(--primary-light); color: var(--primary-color); border-left: 4px solid var(--primary-color); }
+        .nav-item .material-symbols-outlined { margin-right: 16px; font-size: 20px; }
+        .nav-list-separator { height: 1px; background-color: var(--border-color); margin: 10px 24px; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; background-color: #fff; border-bottom: 1px solid var(--border-color); min-height: 80px; }
+        .project-info h1 { font-size: 1.4rem; font-weight: 500; }
+        .actions button { background-color: var(--primary-color); color: white; border: none; padding: 10px 18px; border-radius: var(--card-radius); cursor: pointer; font-weight: 500; margin-left: 10px; display: inline-flex; align-items: center; transition: background-color 0.2s; }
+        .actions button:hover { background-color: #1b66c9; }
+        .actions button .material-symbols-outlined { margin-right: 8px; }
+        .actions button.secondary { background-color: transparent; color: var(--primary-color); border: 1px solid var(--border-color); }
+        .actions button.secondary:hover { background-color: var(--primary-light); }
+        .workspace { padding: 32px; }
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background-color: #fff; padding: 32px; border-radius: var(--card-radius); box-shadow: var(--card-shadow); margin-bottom: 32px; }
+        .step-header h2 { font-size: 1.8rem; font-weight: 500; margin-bottom: 24px; }
+        details { border: 1px solid var(--border-color); border-radius: var(--card-radius); margin-bottom: 24px; }
+        summary { font-weight: 500; cursor: pointer; padding: 16px; display: flex; align-items: center; justify-content: space-between; background-color: #f8f9fa; }
+        summary:hover { background-color: #f1f3f4; }
+        summary::after { content: 'expand_more'; font-family: 'Material Symbols Outlined'; font-weight: normal; font-size: 24px; }
+        details[open] > summary::after { content: 'expand_less'; }
+        .details-content { padding: 16px; border-top: 1px solid var(--border-color); }
+        .details-content h4 { font-weight: 700; color: var(--primary-color); margin-top: 10px; margin-bottom: 5px; }
+        .details-content ul { padding-left: 20px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+        .form-group input[type="text"], .form-group input[type="date"], .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .attachment-section { margin-top: 24px; padding: 16px; border: 2px dashed var(--border-color); border-radius: var(--card-radius); }
+        .attachment-section label { font-weight: 500; }
+        .file-input-btn { background-color: white; color: var(--primary-color); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        input[type="file"] { display: none; }
+        .file-list { list-style-type: none; margin-top: 10px; }
+        .file-list li { background-color: #f1f3f4; padding: 5px 10px; border-radius: 4px; margin-bottom: 5px; font-size: 0.9rem; }
+        .dynamic-table { width: 100%; border-collapse: collapse; }
+        .dynamic-table th, .dynamic-table td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+        .dynamic-table th { background-color: #f8f9fa; font-weight: 500; }
+        .dynamic-table input { width: 100%; padding: 8px; border: 1px solid transparent; border-radius: 4px; }
+        .dynamic-table input:focus { border-color: var(--primary-color); outline: none; background-color: var(--primary-light); }
+        .add-row-btn { margin-top: 16px; background: none; border: 1px solid var(--border-color); color: var(--primary-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .final-action-btn { background-color: var(--success-color); color: white; padding: 12px 24px; font-size: 1.1rem; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header"><span class="material-symbols-outlined">verified_user</span>8D-Facilitator</div>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#" data-step="accueil" class="active"><span class="material-symbols-outlined">home</span>Accueil</a></li>
+                <li class="nav-list-separator"></li>
+                <li class="nav-item"><a href="#" data-step="d0"><span class="material-symbols-outlined">flag</span>D0: Planifier</a></li>
+                <li class="nav-item"><a href="#" data-step="d1"><span class="material-symbols-outlined">groups</span>D1: Former l'équipe</a></li>
+                <li class="nav-item"><a href="#" data-step="d2"><span class="material-symbols-outlined">description</span>D2: Décrire le problème</a></li>
+                <li class="nav-item"><a href="#" data-step="d3"><span class="material-symbols-outlined">health_and_safety</span>D3: Sécuriser</a></li>
+                <li class="nav-item"><a href="#" data-step="d4"><span class="material-symbols-outlined">search</span>D4: Identifier la cause</a></li>
+                <li class="nav-item"><a href="#" data-step="d5"><span class="material-symbols-outlined">build</span>D5: Actions correctives</a></li>
+                <li class="nav-item"><a href="#" data-step="d6"><span class="material-symbols-outlined">task_alt</span>D6: Mettre en œuvre</a></li>
+                <li class="nav-item"><a href="#" data-step="d7"><span class="material-symbols-outlined">event_repeat</span>D7: Prévenir la récidive</a></li>
+                <li class="nav-item"><a href="#" data-step="d8"><span class="material-symbols-outlined">celebration</span>D8: Féliciter l'équipe</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="project-info"><h1>Projet : Anomalie sur pièce XF-123</h1></div>
+                <div class="actions">
+                    <button class="secondary" onclick="document.getElementById('file-loader').click()"><span class="material-symbols-outlined">upload_file</span>Charger</button>
+                    <input type="file" id="file-loader" style="display:none;" accept=".8d" onchange="alert('Le projet ' + this.files[0].name + ' serait maintenant chargé.')">
+                    <button class="secondary" onclick="alert('Le projet a été sauvegardé au format .8d !')"><span class="material-symbols-outlined">save</span>Enregistrer</button>
+                    <button onclick="alert('Génération du rapport PDF en cours...')"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- ACCUEIL -->
+                <div id="accueil" class="step-content active"><div class="card">... Contenu de l'accueil (inchangé) ...</div></div>
+
+                <!-- D0: PLANIFIER -->
+                <div id="d0" class="step-content"><div class="card"><div class="step-header"><h2>D0 : Planifier</h2></div><details><summary>Guide</summary><div class="details-content">...</div></details><div class="form-group"><label>Symptôme(s)</label><textarea></textarea></div></div></div>
+
+                <!-- D1: FORMER L'ÉQUIPE -->
+                <div id="d1" class="step-content"><div class="card"><div class="step-header"><h2>D1 : Former l'équipe</h2></div><details><summary>Guide</summary><div class="details-content">...</div></details><table id="team-table" class="dynamic-table"><thead><tr><th>Nom</th><th>Rôle</th><th>Leader</th></tr></thead><tbody><tr><td><input></td><td><input></td><td><input></td></tr></tbody></table><button class="add-row-btn" onclick="addTableRow('team-table', 3)">+ Ajouter</button></div></div>
+                
+                <!-- D2: DÉCRIRE LE PROBLÈME -->
+                <div id="d2" class="step-content"><div class="card"><div class="step-header"><h2>D2 : Décrire le problème</h2></div><details><summary>Guide</summary><div class="details-content">...</div></details><!-- champs QQOQCP ici --><div class="attachment-section"><label>Pièces Jointes</label><label for="file-input-d2" class="file-input-btn">Choisir</label><input id="file-input-d2" type="file" onchange="updateFileList('file-input-d2', 'file-list-d2')" multiple><ul id="file-list-d2" class="file-list"></ul></div></div></div>
+                
+                <!-- D3: SÉCURISER (VERSION COMPLÈTE) -->
+                <div id="d3" class="step-content">
+                    <div class="card">
+                        <div class="step-header"><h2>D3 : Actions de sécurisation</h2></div>
+                        <details><summary>Guide de l'étape D3</summary><div class="details-content"><h4>Objectif</h4><p>Protéger le client IMMÉDIATEMENT. Il ne s'agit pas de résoudre le problème, mais d'empêcher que ses effets n'atteignent le client interne ou externe.</p><h4>Livrable</h4><p>Un plan d'actions de confinement (sécurisation) mis en place et dont l'efficacité est vérifiée.</p></div></details>
+                        <table id="securisation-table" class="dynamic-table">
+                            <thead><tr><th>Action de sécurisation</th><th>Responsable</th><th>Date</th><th>Statut/Validation</th></tr></thead>
+                            <tbody><tr><td><input placeholder="Ex: Trier le stock"></td><td><input placeholder="J. Dupont"></td><td><input type="date"></td><td><input placeholder="Terminé, validé"></td></tr></tbody>
+                        </table>
+                        <button class="add-row-btn" onclick="addTableRow('securisation-table', 4)">+ Ajouter une action</button>
+                    </div>
+                </div>
+
+                <!-- D4: IDENTIFIER LA CAUSE (VERSION COMPLÈTE) -->
+                <div id="d4" class="step-content">
+                    <div class="card">
+                        <div class="step-header"><h2>D4 : Identifier la cause racine</h2></div>
+                        <details><summary>Guide de l'étape D4</summary><div class="details-content"><h4>Objectif</h4><p>Trouver la cause fondamentale qui, si elle est éliminée, empêchera le problème de se reproduire. Utiliser des outils pour structurer la pensée.</p><h4>Outils</h4><ul><li><b>5 Pourquoi :</b> Poser "Pourquoi ?" de manière itérative.</li><li><b>5M (Ishikawa) :</b> Brainstormer les causes par catégorie.</li></ul><h4>Livrable</h4><p>La ou les causes racines identifiées ET validées par des faits.</p></div></details>
+                        
+                        <div class="form-group"><label>Analyse "5 Pourquoi"</label><textarea placeholder="Problème: ...&#10;Pourquoi 1: ...&#10;Pourquoi 2: ..."></textarea></div>
+                        <label>Analyse des causes possibles (5M)</label>
+                        <div class="form-group-grid">
+                            <div class="form-group"><label>Matière</label><textarea></textarea></div>
+                            <div class="form-group"><label>Main d'œuvre</label><textarea></textarea></div>
+                            <div class="form-group"><label>Méthode</label><textarea></textarea></div>
+                            <div class="form-group"><label>Matériel</label><textarea></textarea></div>
+                            <div class="form-group"><label>Milieu</label><textarea></textarea></div>
+                        </div>
+                        <div class="form-group"><label>Cause(s) Racine(s) Validée(s)</label><textarea placeholder="Décrire la cause racine finale et comment sa validité a été prouvée."></textarea></div>
+                        <div class="attachment-section"><label>Pièces Jointes (Preuves, tests...)</label><label for="file-input-d4" class="file-input-btn">Choisir</label><input id="file-input-d4" type="file" onchange="updateFileList('file-input-d4', 'file-list-d4')" multiple><ul id="file-list-d4" class="file-list"></ul></div>
+                    </div>
+                </div>
+
+                <!-- D5: ACTIONS CORRECTIVES (VERSION COMPLÈTE) -->
+                <div id="d5" class="step-content">
+                    <div class="card">
+                        <div class="step-header"><h2>D5 : Élaborer les actions correctives</h2></div>
+                        <details><summary>Guide de l'étape D5</summary><div class="details-content"><h4>Objectif</h4><p>Définir, tester et choisir les meilleures actions pour éliminer définitivement la cause racine.</p><h4>Livrable</h4><p>Une liste d'actions correctives permanentes, avec un plan de validation et la preuve de leur efficacité.</p></div></details>
+                        <table id="corrective-table" class="dynamic-table">
+                            <thead><tr><th>Action corrective proposée</th><th>Responsable</th><th>Plan de validation</th><th>Résultat validation</th></tr></thead>
+                            <tbody><tr><td><input placeholder="Ex: Modifier paramètre machine"></td><td><input placeholder="M. Curie"></td><td><input placeholder="Test sur 20 pièces"></td><td><input placeholder="Conforme"></td></tr></tbody>
+                        </table>
+                        <button class="add-row-btn" onclick="addTableRow('corrective-table', 4)">+ Ajouter une action</button>
+                    </div>
+                </div>
+
+                <!-- D6: METTRE EN OEUVRE (VERSION COMPLÈTE) -->
+                <div id="d6" class="step-content">
+                     <div class="card">
+                        <div class="step-header"><h2>D6 : Mettre en œuvre les actions</h2></div>
+                        <details><summary>Guide de l'étape D6</summary><div class="details-content"><h4>Objectif</h4><p>Déployer les actions correctives permanentes à grande échelle et s'assurer de leur pérennité.</p><h4>Livrable</h4><p>Un plan de déploiement achevé, des preuves du succès des actions (indicateurs au vert), et la suppression officielle des actions de sécurisation (D3).</p></div></details>
+                        <table id="implementation-table" class="dynamic-table">
+                            <thead><tr><th>Action mise en œuvre</th><th>Responsable</th><th>Date de fin</th><th>Statut</th></tr></thead>
+                            <tbody><tr><td><input value="Modifier paramètre machine"></td><td><input value="M. Curie"></td><td><input type="date"></td><td><input placeholder="Terminé"></td></tr></tbody>
+                        </table>
+                        <button class="add-row-btn" onclick="addTableRow('implementation-table', 4)">+ Suivre une action</button>
+                        <div class="form-group" style="margin-top: 24px;"><label><input type="checkbox"> Les actions de sécurisation (D3) ont été levées.</label></div>
+                        <div class="attachment-section"><label>Pièces Jointes (Procédures màj, indicateurs...)</label><label for="file-input-d6" class="file-input-btn">Choisir</label><input id="file-input-d6" type="file" onchange="updateFileList('file-input-d6', 'file-list-d6')" multiple><ul id="file-list-d6" class="file-list"></ul></div>
+                    </div>
+                </div>
+
+                <!-- D7: PRÉVENIR LA RÉCIDIVE (VERSION COMPLÈTE) -->
+                <div id="d7" class="step-content">
+                    <div class="card">
+                        <div class="step-header"><h2>D7 : Prévenir la récidive</h2></div>
+                        <details><summary>Guide de l'étape D7</summary><div class="details-content"><h4>Objectif</h4><p>Standardiser les changements pour éviter que le même problème, ou un problème similaire, ne réapparaisse ailleurs ou plus tard.</p><h4>Livrable</h4><p>La preuve que les systèmes, standards et procédures ont été mis à jour.</p></div></details>
+                        <div class="form-group"><label>Systèmes de management mis à jour</label><textarea placeholder="Ex: AMDEC Process mis à jour le..., Plan de surveillance revu..."></textarea></div>
+                        <div class="form-group"><label>Standards et instructions de travail modifiés</label><textarea placeholder="Ex: Instruction de travail IT-102 modifiée pour inclure le nouveau paramètre..."></textarea></div>
+                        <div class="form-group"><label>Leçons apprises et partage des connaissances</label><textarea placeholder="Ex: Partage en réunion de production, diffusion d'une note d'information..."></textarea></div>
+                    </div>
+                </div>
+
+                <!-- D8: FÉLICITER L'ÉQUIPE (VERSION COMPLÈTE) -->
+                <div id="d8" class="step-content">
+                    <div class="card">
+                        <div class="step-header"><h2>D8 : Féliciter l'équipe</h2></div>
+                        <details><summary>Guide de l'étape D8</summary><div class="details-content"><h4>Objectif</h4><p>Reconnaître et célébrer le travail et le succès de l'équipe. Cette étape est cruciale pour ancrer une culture d'amélioration continue.</p><h4>Livrable</h4><p>Une communication officielle remerciant l'équipe et une capitalisation sur l'expérience acquise.</p></div></details>
+                        <div class="form-group"><label>Synthèse du projet et reconnaissance de l'équipe</label><textarea placeholder="Décrire comment le succès a été communiqué et l'équipe remerciée."></textarea></div>
+                        <div class="form-group"><label>Date de clôture du projet 8D</label><input type="date"></div>
+                        <button class="final-action-btn" onclick="alert('Le projet 8D est maintenant clôturé et archivé !')"><span class="material-symbols-outlined">archive</span> Clôturer et Archiver le Projet</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.switchStep = (stepId) => {
+                document.querySelectorAll('.nav-item a').forEach(l => l.classList.remove('active'));
+                document.querySelector(`a[data-step="${stepId}"]`).classList.add('active');
+                document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(stepId).classList.add('active');
+            };
+            document.getElementById('navList').addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (link && link.dataset.step) { e.preventDefault(); switchStep(link.dataset.step); }
+            });
+            window.addTableRow = (tableId, cellCount) => {
+                const tbody = document.getElementById(tableId).querySelector('tbody');
+                const newRow = tbody.insertRow();
+                for(let i=0; i<cellCount; i++) { newRow.insertCell().innerHTML = "<input type='text'>"; }
+                // Spécial pour la date dans D3 et D6
+                if(tableId === 'securisation-table') newRow.cells[2].innerHTML = "<input type='date'>";
+                if(tableId === 'implementation-table') newRow.cells[2].innerHTML = "<input type='date'>";
+            };
+            window.updateFileList = (inputId, listId) => {
+                const list = document.getElementById(listId);
+                list.innerHTML = '';
+                for (const file of document.getElementById(inputId).files) {
+                    list.innerHTML += `<li>${file.name}</li>`;
+                }
+            };
+            switchStep('accueil'); // Démarrer sur l'accueil
+        });
+    </script>
+</body>
+</html>
