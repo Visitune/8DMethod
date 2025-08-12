@@ -28,7 +28,7 @@
         .sidebar.collapsed { width: 60px; }
         .sidebar-header { padding: 1.5rem; font-size: 1.5em; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); }
         .nav-list { list-style-type: none; flex-grow: 1; padding-top: 1rem; }
-        .nav-item a { display: flex; align-items: center; padding: 0.75rem 1.5rem; margin: 0.25rem 1rem; text-decoration: none; color: var(--text-light); font-weight: 500; border-radius: 0.5rem; transition: all 0.2s ease-in-out; }
+        .nav-item a { display: flex; align-items: center; padding: 0.75rem 1.5rem; margin: 0.25rem 1rem; text-decoration: none; color: var(--text-light); font-weight: 500; border-radius: 0.5rem; transition: all 0.2s ease-in-out; cursor: pointer; }
         .nav-item a:hover { background-color: var(--background-color); color: var(--text-color); }
         .nav-item a.active { background-color: var(--primary-light); color: var(--primary-color); }
         .nav-item .nav-icon { margin-right: 1rem; flex-shrink: 0; }
@@ -94,10 +94,6 @@
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.2s; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .form-group textarea { min-height: 120px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .input-group { position: relative; }
-        .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light); }
-        .input-group input { padding-left: 2.5rem; }
         
         /* --- Tableaux Dynamiques --- */
         .table-container { overflow-x: auto; margin: 1rem 0; }
@@ -109,25 +105,13 @@
         .remove-row { background: var(--error-color); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem; cursor: pointer; }
         .add-row-btn { margin-top: 1rem; }
         
-        /* --- Outil Ishikawa --- */
-        .ishikawa-container { position: relative; min-height: 500px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--card-radius); margin: 1rem 0; }
-        .ishikawa-diagram { width: 100%; height: 100%; }
-        .ishikawa-diagram line { stroke: var(--border-color); stroke-width: 2; }
-        .ishikawa-diagram .main-spine { stroke: var(--text-color); stroke-width: 3; marker-end: url(#arrow); }
-        .ishikawa-diagram text { font-size: 0.875rem; font-weight: 600; fill: var(--text-light); }
-        .ishikawa-diagram .effect-text { font-size: 1rem; font-weight: 700; fill: var(--primary-color); }
-        .ishikawa-diagram .category-text { font-size: 0.875rem; font-weight: 600; fill: var(--text-color); }
-        .ishikawa-input { position: absolute; }
-        .ishikawa-input textarea { width: 140px; height: 60px; font-size: 0.75rem; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid var(--primary-color); background: #fafaff; resize: none; }
-        .ishikawa-input textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); }
-        
-        /* --- Avatars et Équipe --- */
-        .avatar-stack { display: flex; align-items: center; margin: 1rem 0; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.875rem; cursor: pointer; position: relative; }
-        .avatar:first-child { margin-left: 0; }
-        .avatar:hover { z-index: 10; transform: scale(1.1); }
-        .add-member-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--border-color); background: var(--background-color); color: var(--text-light); display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 1rem; }
-        .add-member-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        /* --- Modal --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); border-radius: var(--card-radius); padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { font-size: 1.25rem; font-weight: 600; }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
         
         /* --- Notifications --- */
         .notification { position: fixed; top: 1rem; right: 1rem; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1rem 1.5rem; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; max-width: 300px; }
@@ -136,14 +120,6 @@
         .notification.error { border-left: 4px solid var(--error-color); }
         .notification.warning { border-left: 4px solid var(--warning-color); }
         .notification.info { border-left: 4px solid var(--info-color); }
-        
-        /* --- Modal --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); border-radius: var(--card-radius); padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .modal-header h3 { font-size: 1.25rem; font-weight: 600; }
-        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
         
         /* --- Responsive --- */
         @media (max-width: 768px) {
@@ -154,50 +130,12 @@
             .nav-item .nav-text, .nav-item .step-status { display: none; }
             .main-header { padding: 1rem; }
             .workspace { padding: 1rem; }
-            .form-row { grid-template-columns: 1fr; }
             .dashboard-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
-        }
-        
-        /* --- Animations --- */
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .loading { animation: pulse 1.5s infinite; }
-
-        /* --- Auto-sauvegarde --- */
-        .auto-save-indicator { 
-            display: none; 
-            align-items: center; 
-            gap: 0.5rem; 
-            font-size: 0.75rem; 
-            color: var(--success-color); 
-            margin-left: 1rem; 
-        }
-        .auto-save-indicator.saving { color: var(--warning-color); }
-        .auto-save-indicator.error { color: var(--error-color); }
-        
-        /* --- Filtres --- */
-        .filter-section { 
-            display: flex; 
-            gap: 1rem; 
-            margin-bottom: 1.5rem; 
-            flex-wrap: wrap; 
-            align-items: center; 
-        }
-        .filter-section select { 
-            padding: 0.5rem; 
-            border: 1px solid var(--border-color); 
-            border-radius: 0.5rem; 
-            font-size: 0.875rem; 
-        }
-        .search-box { 
-            flex: 1; 
-            min-width: 200px; 
         }
     </style>
 </head>
 <body>
-
     <div class="app-container">
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -206,21 +144,21 @@
             </div>
             <ul class="nav-list" id="navList">
                 <li class="nav-item">
-                    <a href="#" id="dashboard-link" class="active">
+                    <a id="dashboard-link" class="active">
                         <span class="material-symbols-outlined nav-icon">dashboard</span>
                         <span class="nav-text">Tableau de bord</span>
                     </a>
                 </li>
                 <li style="height: 1px; background: var(--border-color); margin: 1rem;"></li>
-                <li class="nav-item"><a href="#" data-step="d0"><span class="material-symbols-outlined nav-icon">flag</span><span class="nav-text">D0: Planifier</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d1"><span class="material-symbols-outlined nav-icon">groups</span><span class="nav-text">D1: Équipe</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d2"><span class="material-symbols-outlined nav-icon">description</span><span class="nav-text">D2: Décrire</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d3"><span class="material-symbols-outlined nav-icon">health_and_safety</span><span class="nav-text">D3: Sécuriser</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d4"><span class="material-symbols-outlined nav-icon">search</span><span class="nav-text">D4: Cause Racine</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d5"><span class="material-symbols-outlined nav-icon">build_circle</span><span class="nav-text">D5: Actions Correctives</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d6"><span class="material-symbols-outlined nav-icon">task_alt</span><span class="nav-text">D6: Mettre en œuvre</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d7"><span class="material-symbols-outlined nav-icon">event_repeat</span><span class="nav-text">D7: Prévenir</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d8"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d0"><span class="material-symbols-outlined nav-icon">flag</span><span class="nav-text">D0: Planifier</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d1"><span class="material-symbols-outlined nav-icon">groups</span><span class="nav-text">D1: Équipe</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d2"><span class="material-symbols-outlined nav-icon">description</span><span class="nav-text">D2: Décrire</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d3"><span class="material-symbols-outlined nav-icon">health_and_safety</span><span class="nav-text">D3: Sécuriser</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d4"><span class="material-symbols-outlined nav-icon">search</span><span class="nav-text">D4: Cause Racine</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d5"><span class="material-symbols-outlined nav-icon">build_circle</span><span class="nav-text">D5: Actions Correctives</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d6"><span class="material-symbols-outlined nav-icon">task_alt</span><span class="nav-text">D6: Mettre en œuvre</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d7"><span class="material-symbols-outlined nav-icon">event_repeat</span><span class="nav-text">D7: Prévenir</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a data-step="d8"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
             </ul>
         </nav>
 
@@ -230,17 +168,9 @@
                     <h1>Tableau de bord</h1>
                     <div class="project-meta"></div>
                 </div>
-                <div style="display: flex; align-items: center;">
-                    <div class="auto-save-indicator" id="auto-save-indicator">
-                        <span class="material-symbols-outlined">sync</span>
-                        <span id="save-status">Auto-sauvegardé</span>
-                    </div>
-                    <div class="actions">
-                        <button class="btn secondary" id="toggle-sidebar"><span class="material-symbols-outlined">menu</span></button>
-                        <button class="btn secondary" onclick="importData()"><span class="material-symbols-outlined">upload_file</span>Importer</button>
-                        <button class="btn secondary" id="save-btn" style="display:none;" onclick="saveProject()"><span class="material-symbols-outlined">save</span>Enregistrer</button>
-                        <button class="btn" id="pdf-btn" style="display:none;" onclick="generatePDF()"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
-                    </div>
+                <div class="actions">
+                    <button class="btn secondary" id="toggle-sidebar"><span class="material-symbols-outlined">menu</span></button>
+                    <button class="btn" id="pdf-btn" style="display:none;"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
                 </div>
             </header>
 
@@ -249,29 +179,9 @@
                 <div id="dashboard-view" class="view active">
                     <div class="dashboard-header">
                         <h2>Projets 8D en cours</h2>
-                        <button class="btn" onclick="createNewProject()">
+                        <button class="btn" id="new-project-btn">
                             <span class="material-symbols-outlined">add</span>Nouveau Projet
                         </button>
-                    </div>
-                    
-                    <!-- Filtres et recherche -->
-                    <div class="filter-section">
-                        <div class="search-box">
-                            <input type="text" id="project-search" placeholder="Rechercher des projets..." 
-                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem;">
-                        </div>
-                        <select id="status-filter">
-                            <option value="">Tous les statuts</option>
-                            <option value="in-progress">En cours</option>
-                            <option value="completed">Terminés</option>
-                            <option value="on-hold">En attente</option>
-                        </select>
-                        <select id="sort-filter">
-                            <option value="updated">Tri par mise à jour</option>
-                            <option value="created">Tri par création</option>
-                            <option value="progress">Tri par avancement</option>
-                            <option value="title">Tri alphabétique</option>
-                        </select>
                     </div>
                     
                     <div class="dashboard-stats">
@@ -294,14 +204,14 @@
                     </div>
                     
                     <div id="project-list" class="dashboard-grid">
-                        <!-- Les cartes de projet seront injectées ici par JS -->
+                        <!-- Les cartes de projet seront injectées ici -->
                     </div>
                 </div>
 
                 <!-- VUE PROJET -->
                 <div id="project-view" class="view">
                     <div class="breadcrumb">
-                        <a href="#" onclick="switchView('dashboard')">Tableau de bord</a>
+                        <a id="breadcrumb-dashboard">Tableau de bord</a>
                         <span class="material-symbols-outlined">chevron_right</span>
                         <span id="breadcrumb-project">Projet</span>
                     </div>
@@ -313,7 +223,7 @@
                                 <h2>D0 : Planifier</h2>
                                 <div class="step-actions">
                                     <button class="btn secondary" onclick="resetStep('d0')">Réinitialiser</button>
-                                    <button class="btn" onclick="updateStepStatus('d0', 'completed')">Marquer comme terminé</button>
+                                    <button class="btn" onclick="markStepCompleted('d0')">Marquer comme terminé</button>
                                 </div>
                             </div>
                             
@@ -355,16 +265,7 @@
                                 <h2>D1 : Former le groupe de travail</h2>
                                 <div class="step-actions">
                                     <button class="btn secondary" onclick="resetStep('d1')">Réinitialiser</button>
-                                    <button class="btn" onclick="updateStepStatus('d1', 'completed')">Marquer comme terminé</button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Équipe assignée</label>
-                                <div class="avatar-stack" id="team-members">
-                                    <div class="add-member-btn" onclick="addTeamMember()">
-                                        <span class="material-symbols-outlined">add</span>
-                                    </div>
+                                    <button class="btn" onclick="markStepCompleted('d1')">Marquer comme terminé</button>
                                 </div>
                             </div>
                             
@@ -375,3 +276,534 @@
                                             <th>Nom</th>
                                             <th>Rôle</th>
                                             <th>Département</th>
+                                            <th>Email</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="text" placeholder="Nom complet"></td>
+                                            <td>
+                                                <select>
+                                                    <option value="member">Membre</option>
+                                                    <option value="leader">Leader</option>
+                                                    <option value="expert">Expert</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" placeholder="Département"></td>
+                                            <td><input type="email" placeholder="Email"></td>
+                                            <td><button class="remove-row" onclick="removeTableRow(this)">×</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button class="btn secondary add-row-btn" onclick="addTeamRow()">
+                                    <span class="material-symbols-outlined">add</span>Ajouter un membre
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- D2-D8 (autres étapes) -->
+                    <div id="d2" class="card">
+                        <div class="card-content">
+                            <div class="step-header">
+                                <h2>D2 : Décrire le problème</h2>
+                                <div class="step-actions">
+                                    <button class="btn secondary" onclick="resetStep('d2')">Réinitialiser</button>
+                                    <button class="btn" onclick="markStepCompleted('d2')">Marquer comme terminé</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Quoi : Quel est le problème ?</label>
+                                    <textarea placeholder="Décrivez précisément ce qui ne va pas..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Où : Où le problème se produit-il ?</label>
+                                    <textarea placeholder="Ligne, poste, zone, équipement..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quand : Quand le problème survient-il ?</label>
+                                    <textarea placeholder="Fréquence, horaires, conditions..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Qui : Qui est concerné ?</label>
+                                    <textarea placeholder="Opérateurs, équipes, clients..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Comment : Comment le problème se manifeste-t-il ?</label>
+                                    <textarea placeholder="Symptômes, manifestations..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Combien : Quelle est l'ampleur ?</label>
+                                    <textarea placeholder="Quantité, coût, impact..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Les autres étapes D3-D8 suivront le même modèle -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal pour nouveau projet -->
+    <div id="new-project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouveau Projet 8D</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="new-project-title">Titre du projet *</label>
+                <input type="text" id="new-project-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
+            </div>
+            <div class="form-group">
+                <label for="new-project-description">Description</label>
+                <textarea id="new-project-description" placeholder="Description détaillée du problème..."></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <button class="btn secondary" id="cancel-project-btn">Annuler</button>
+                <button class="btn" id="create-project-btn">Créer le projet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zone de notifications -->
+    <div id="notification-area"></div>
+
+    <script>
+        // --- DONNÉES DE L'APPLICATION ---
+        let appData = {
+            currentView: 'dashboard',
+            activeProject: null,
+            nextId: 4,
+            projects: [
+                { 
+                    id: 1, 
+                    title: 'Anomalie sur pièce XF-123', 
+                    description: 'Problème de qualité récurrent',
+                    status: 'in-progress', 
+                    createdDate: '2024-01-15',
+                    updatedDate: '2024-01-20',
+                    steps: { d0: 'completed', d1: 'completed', d2: 'in-progress', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
+                },
+                { 
+                    id: 2, 
+                    title: 'Vibration anormale Ligne 3', 
+                    description: 'Vibrations excessives détectées',
+                    status: 'in-progress', 
+                    createdDate: '2024-01-18',
+                    updatedDate: '2024-01-22',
+                    steps: { d0: 'completed', d1: 'in-progress', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
+                },
+                { 
+                    id: 3, 
+                    title: 'Fuite Huile Compresseur C-05', 
+                    description: 'Fuite d\'huile majeure',
+                    status: 'completed', 
+                    createdDate: '2024-01-10',
+                    updatedDate: '2024-01-25',
+                    steps: { d0:'completed', d1:'completed', d2:'completed', d3:'completed', d4:'completed', d5:'completed', d6:'completed', d7:'completed', d8:'completed' }
+                }
+            ]
+        };
+
+        // --- FONCTIONS UTILITAIRES ---
+        function getProject(id) {
+            return appData.projects.find(p => p.id === parseInt(id));
+        }
+
+        function calculateProgress(project) {
+            const steps = Object.values(project.steps);
+            const completed = steps.filter(s => s === 'completed').length;
+            return Math.round((completed / steps.length) * 100);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span>
+                    ${message}
+                </div>
+            `;
+            
+            document.getElementById('notification-area').appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // --- RENDU DES STATISTIQUES ---
+        function renderStats() {
+            const total = appData.projects.length;
+            const active = appData.projects.filter(p => p.status === 'in-progress').length;
+            const completed = appData.projects.filter(p => p.status === 'completed').length;
+            const avgProgress = total > 0 ? Math.round(appData.projects.reduce((sum, p) => sum + calculateProgress(p), 0) / total) : 0;
+
+            document.getElementById('total-projects').textContent = total;
+            document.getElementById('active-projects').textContent = active;
+            document.getElementById('completed-projects').textContent = completed;
+            document.getElementById('avg-completion').textContent = avgProgress + '%';
+        }
+
+        // --- RENDU DES PROJETS ---
+        function renderProjects() {
+            const container = document.getElementById('project-list');
+            container.innerHTML = '';
+
+            appData.projects.forEach(project => {
+                const progress = calculateProgress(project);
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.onclick = () => openProject(project.id);
+                
+                card.innerHTML = `
+                    <div class="project-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); duplicateProject(${project.id})" title="Dupliquer">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </button>
+                        <button class="action-btn" onclick="event.stopPropagation(); deleteProject(${project.id})" title="Supprimer">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                    <div class="project-id">Projet #${project.id.toString().padStart(3, '0')}</div>
+                    <h3>${project.title}</h3>
+                    <span class="status ${project.status}">
+                        ${project.status === 'in-progress' ? 'En cours' : 
+                          project.status === 'completed' ? 'Terminé' : 'Planifié'}
+                    </span>
+                    <div class="project-progress">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.875rem; color: var(--text-light);">Avancement</span>
+                            <span style="font-size: 0.875rem; font-weight: 600;">${progress}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="project-meta">
+                        <span>Créé le ${new Date(project.createdDate).toLocaleDateString('fr-FR')}</span>
+                        <span>Mis à jour le ${new Date(project.updatedDate).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- RENDU DU DASHBOARD ---
+        function renderDashboard() {
+            renderStats();
+            renderProjects();
+        }
+
+        // --- NAVIGATION ---
+        function showDashboard() {
+            appData.currentView = 'dashboard';
+            document.getElementById('dashboard-view').classList.add('active');
+            document.getElementById('project-view').classList.remove('active');
+            
+            // Navigation
+            document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
+            document.getElementById('dashboard-link').classList.add('active');
+            
+            // Header
+            document.getElementById('project-header').innerHTML = `
+                <div>
+                    <h1>Tableau de bord</h1>
+                    <div class="project-meta"></div>
+                </div>
+            `;
+            document.getElementById('pdf-btn').style.display = 'none';
+            
+            renderDashboard();
+        }
+
+        function openProject(projectId) {
+            const project = getProject(projectId);
+            if (!project) return;
+            
+            appData.currentView = 'project';
+            appData.activeProject = project;
+            
+            document.getElementById('dashboard-view').classList.remove('active');
+            document.getElementById('project-view').classList.add('active');
+            
+            // Header
+            const progress = calculateProgress(project);
+            document.getElementById('project-header').innerHTML = `
+                <div>
+                    <h1>${project.title}</h1>
+                    <div class="project-meta">
+                        Projet #${project.id.toString().padStart(3, '0')} • Avancement: ${progress}% • 
+                        Statut: ${project.status === 'in-progress' ? 'En cours' : 
+                                 project.status === 'completed' ? 'Terminé' : 'Planifié'}
+                    </div>
+                </div>
+            `;
+            document.getElementById('breadcrumb-project').textContent = project.title;
+            document.getElementById('pdf-btn').style.display = 'inline-flex';
+            
+            // Navigation sidebar - mettre à jour les statuts
+            updateStepNavigation(project);
+            
+            // Navigation active
+            document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
+        }
+
+        function updateStepNavigation(project) {
+            document.querySelectorAll('.step-status').forEach(el => {
+                el.textContent = '';
+                el.className = 'material-symbols-outlined step-status';
+            });
+
+            Object.entries(project.steps).forEach(([step, status]) => {
+                const statusEl = document.querySelector(`a[data-step="${step}"] .step-status`);
+                if (statusEl) {
+                    if (status === 'completed') {
+                        statusEl.textContent = 'check_circle';
+                        statusEl.classList.add('completed');
+                    } else if (status === 'in-progress') {
+                        statusEl.textContent = 'schedule';
+                        statusEl.classList.add('in-progress');
+                    }
+                }
+            });
+        }
+
+        // --- GESTION DES PROJETS ---
+        function createNewProject() {
+            document.getElementById('new-project-modal').classList.add('show');
+            document.getElementById('new-project-title').focus();
+        }
+
+        function createProject() {
+            const title = document.getElementById('new-project-title').value.trim();
+            const description = document.getElementById('new-project-description').value.trim();
+            
+            if (!title) {
+                showNotification('Le titre est obligatoire', 'error');
+                return;
+            }
+
+            const newProject = {
+                id: appData.nextId++,
+                title: title,
+                description: description,
+                status: 'planned',
+                createdDate: new Date().toISOString().split('T')[0],
+                updatedDate: new Date().toISOString().split('T')[0],
+                steps: { d0: '', d1: '', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
+            };
+
+            appData.projects.unshift(newProject);
+            closeModal();
+            showNotification('Projet créé avec succès', 'success');
+            renderDashboard();
+            
+            // Ouvrir automatiquement le nouveau projet
+            setTimeout(() => openProject(newProject.id), 500);
+        }
+
+        function duplicateProject(projectId) {
+            const original = getProject(projectId);
+            if (!original) return;
+
+            const duplicate = {
+                ...original,
+                id: appData.nextId++,
+                title: original.title + ' (Copie)',
+                createdDate: new Date().toISOString().split('T')[0],
+                updatedDate: new Date().toISOString().split('T')[0],
+                status: 'planned',
+                steps: { d0: '', d1: '', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
+            };
+
+            appData.projects.unshift(duplicate);
+            showNotification('Projet dupliqué avec succès', 'success');
+            renderDashboard();
+        }
+
+        function deleteProject(projectId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+                appData.projects = appData.projects.filter(p => p.id !== projectId);
+                showNotification('Projet supprimé', 'info');
+                renderDashboard();
+            }
+        }
+
+        // --- GESTION DES ÉTAPES ---
+        function markStepCompleted(step) {
+            if (!appData.activeProject) return;
+            
+            appData.activeProject.steps[step] = 'completed';
+            appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
+            
+            // Recalculer le statut du projet
+            const progress = calculateProgress(appData.activeProject);
+            if (progress === 100) {
+                appData.activeProject.status = 'completed';
+            } else if (progress > 0) {
+                appData.activeProject.status = 'in-progress';
+            }
+            
+            updateStepNavigation(appData.activeProject);
+            showNotification(`Étape ${step.toUpperCase()} marquée comme terminée`, 'success');
+            
+            // Mettre à jour l'en-tête du projet
+            const newProgress = calculateProgress(appData.activeProject);
+            document.getElementById('project-header').innerHTML = `
+                <div>
+                    <h1>${appData.activeProject.title}</h1>
+                    <div class="project-meta">
+                        Projet #${appData.activeProject.id.toString().padStart(3, '0')} • Avancement: ${newProgress}% • 
+                        Statut: ${appData.activeProject.status === 'in-progress' ? 'En cours' : 
+                                 appData.activeProject.status === 'completed' ? 'Terminé' : 'Planifié'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetStep(step) {
+            if (!appData.activeProject) return;
+            if (!confirm('Êtes-vous sûr de vouloir réinitialiser cette étape ?')) return;
+            
+            appData.activeProject.steps[step] = '';
+            appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
+            
+            updateStepNavigation(appData.activeProject);
+            showNotification(`Étape ${step.toUpperCase()} réinitialisée`, 'info');
+        }
+
+        // --- GESTION DES TABLEAUX ---
+        function addTeamRow() {
+            const tbody = document.querySelector('#team-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Nom complet"></td>
+                <td>
+                    <select>
+                        <option value="member">Membre</option>
+                        <option value="leader">Leader</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </td>
+                <td><input type="text" placeholder="Département"></td>
+                <td><input type="email" placeholder="Email"></td>
+                <td><button class="remove-row" onclick="removeTableRow(this)">×</button></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        function removeTableRow(button) {
+            button.closest('tr').remove();
+        }
+
+        // --- UTILITAIRES ---
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('show');
+            });
+            // Reset form
+            document.getElementById('new-project-title').value = '';
+            document.getElementById('new-project-description').value = '';
+        }
+
+        function scrollToStep(step) {
+            const element = document.getElementById(step);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // --- ÉVÉNEMENTS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bouton nouveau projet
+            document.getElementById('new-project-btn').onclick = createNewProject;
+            document.getElementById('create-project-btn').onclick = createProject;
+            document.getElementById('cancel-project-btn').onclick = closeModal;
+            
+            // Navigation
+            document.getElementById('dashboard-link').onclick = showDashboard;
+            document.getElementById('breadcrumb-dashboard').onclick = showDashboard;
+            
+            // Navigation vers les étapes
+            document.querySelectorAll('a[data-step]').forEach(link => {
+                link.onclick = function() {
+                    if (appData.currentView === 'project') {
+                        scrollToStep(this.dataset.step);
+                    }
+                    
+                    // Navigation active
+                    document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                };
+            });
+            
+            // Sidebar toggle
+            document.getElementById('toggle-sidebar').onclick = function() {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            };
+            
+            // Fermeture modale
+            document.querySelector('.close-modal').onclick = closeModal;
+            
+            // Fermeture modale en cliquant à l'extérieur
+            document.getElementById('new-project-modal').onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            // Génération PDF (placeholder)
+            document.getElementById('pdf-btn').onclick = function() {
+                showNotification('Génération du PDF en cours...', 'info');
+                setTimeout(() => showNotification('PDF généré avec succès', 'success'), 2000);
+            };
+            
+            // Raccourcis clavier
+            document.onkeydown = function(e) {
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    createNewProject();
+                }
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            };
+            
+            // Auto-save sur les champs de formulaire
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('#problem-title') && appData.activeProject) {
+                    appData.activeProject.title = e.target.value;
+                    appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
+                    
+                    // Mettre à jour l'affichage
+                    document.getElementById('breadcrumb-project').textContent = e.target.value;
+                    const headerTitle = document.querySelector('#project-header h1');
+                    if (headerTitle) headerTitle.textContent = e.target.value;
+                }
+            });
+            
+            // Rendu initial
+            renderDashboard();
+        });
+
+        // Exposer les fonctions globalement pour les onclick
+        window.createNewProject = createNewProject;
+        window.createProject = createProject;
+        window.duplicateProject = duplicateProject;
+        window.deleteProject = deleteProject;
+        window.openProject = openProject;
+        window.markStepCompleted = markStepCompleted;
+        window.resetStep = resetStep;
+        window.addTeamRow = addTeamRow;
+        window.removeTableRow = removeTableRow;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>
