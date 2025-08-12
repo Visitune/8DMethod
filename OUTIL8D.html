@@ -16,6 +16,7 @@
             --background-color: #f3f4f6; --border-color: #d1d5db; --card-bg: #ffffff;
             --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
             --card-radius: 0.75rem; --success-color: #16a34a; --warning-color: #f97316;
+            --error-color: #dc2626; --info-color: #0284c7;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 16px; }
@@ -24,23 +25,28 @@
         /* --- Structure Principale --- */
         .app-container { display: flex; height: 100vh; }
         .sidebar { width: 280px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: width 0.3s ease; }
-        .sidebar-header { padding: 1.5rem; font-size: 1.5em; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--primary-color); }
+        .sidebar.collapsed { width: 60px; }
+        .sidebar-header { padding: 1.5rem; font-size: 1.5em; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); }
         .nav-list { list-style-type: none; flex-grow: 1; padding-top: 1rem; }
         .nav-item a { display: flex; align-items: center; padding: 0.75rem 1.5rem; margin: 0.25rem 1rem; text-decoration: none; color: var(--text-light); font-weight: 500; border-radius: 0.5rem; transition: all 0.2s ease-in-out; }
         .nav-item a:hover { background-color: var(--background-color); color: var(--text-color); }
         .nav-item a.active { background-color: var(--primary-light); color: var(--primary-color); }
-        .nav-item .nav-icon { margin-right: 1rem; }
+        .nav-item .nav-icon { margin-right: 1rem; flex-shrink: 0; }
         .nav-item .step-status { margin-left: auto; font-size: 1.25rem; transition: color 0.3s ease; }
         .step-status.completed { color: var(--success-color); }
         .step-status.in-progress { color: var(--warning-color); }
         
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: rgba(255, 255, 255, 0.8); border-bottom: 1px solid var(--border-color); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: rgba(255, 255, 255, 0.95); border-bottom: 1px solid var(--border-color); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10; }
         .project-info h1 { font-size: 1.25rem; font-weight: 600; }
+        .project-info .project-meta { font-size: 0.875rem; color: var(--text-light); margin-top: 0.25rem; }
         .actions .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: 500; margin-left: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: background-color 0.2s; }
         .actions .btn:hover { background-color: #4338ca; }
+        .actions .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .actions .btn.secondary { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
         .actions .btn.secondary:hover { background-color: var(--background-color); }
+        .actions .btn.danger { background-color: var(--error-color); }
+        .actions .btn.danger:hover { background-color: #b91c1c; }
         
         .workspace { padding: 2rem; }
         .view { display: none; }
@@ -48,61 +54,173 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* --- Tableau de Bord --- */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .project-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1.5rem; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .project-card:hover { transform: translateY(-5px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1.5rem; text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+        .stat-label { font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .project-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1.5rem; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; }
+        .project-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
         .project-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .project-card .status { font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 500; display: inline-block; }
+        .project-card .project-id { font-size: 0.75rem; color: var(--text-light); margin-bottom: 1rem; }
+        .project-card .status { font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 500; display: inline-block; margin-bottom: 1rem; }
         .project-card .status.in-progress { background-color: #ffedd5; color: #9a3412; }
         .project-card .status.completed { background-color: #dcfce7; color: #166534; }
+        .project-card .status.on-hold { background-color: #fef3c7; color: #92400e; }
+        .project-card .project-progress { margin-top: 1rem; }
+        .progress-bar { width: 100%; height: 6px; background-color: var(--background-color); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: var(--primary-color); transition: width 0.3s ease; }
+        .project-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.875rem; color: var(--text-light); }
+        .project-actions { position: absolute; top: 1rem; right: 1rem; opacity: 0; transition: opacity 0.2s; }
+        .project-card:hover .project-actions { opacity: 1; }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 0.25rem; color: var(--text-light); border-radius: 0.25rem; }
+        .action-btn:hover { background-color: var(--background-color); color: var(--text-color); }
         
         /* --- Vue Projet --- */
         .card { background-color: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); margin-bottom: 2rem; }
         .card-content { padding: 2rem; }
         .step-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-        .step-header h2 { font-size: 1.5rem; font-weight: 600; }
+        .step-header h2 { font-size: 1.5rem; font-weight: 600; flex-grow: 1; }
+        .step-actions { display: flex; gap: 0.5rem; }
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-light); }
+        .breadcrumb a { color: var(--primary-color); text-decoration: none; cursor: pointer; }
+        .breadcrumb a:hover { text-decoration: underline; }
         
-        /* --- Éléments de Formulaire & Tableaux --- */
+        /* --- Éléments de Formulaire --- */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.875rem; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; }
-        .form-group textarea { min-height: 120px; }
-        .dynamic-table { width: 100%; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .input-group { position: relative; }
+        .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .input-group input { padding-left: 2.5rem; }
+        
+        /* --- Tableaux Dynamiques --- */
+        .table-container { overflow-x: auto; margin: 1rem 0; }
+        .dynamic-table { width: 100%; border-collapse: collapse; }
+        .dynamic-table th, .dynamic-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .dynamic-table th { background-color: var(--background-color); font-weight: 600; }
+        .dynamic-table input, .dynamic-table select { width: 100%; border: none; background: transparent; padding: 0.5rem; }
+        .dynamic-table input:focus, .dynamic-table select:focus { outline: none; background-color: var(--primary-light); }
+        .remove-row { background: var(--error-color); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem; cursor: pointer; }
         .add-row-btn { margin-top: 1rem; }
         
         /* --- Outil Ishikawa --- */
-        .ishikawa-container { position: relative; min-height: 450px; }
+        .ishikawa-container { position: relative; min-height: 500px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--card-radius); margin: 1rem 0; }
         .ishikawa-diagram { width: 100%; height: 100%; }
         .ishikawa-diagram line { stroke: var(--border-color); stroke-width: 2; }
         .ishikawa-diagram .main-spine { stroke: var(--text-color); stroke-width: 3; marker-end: url(#arrow); }
-        .ishikawa-diagram text { font-size: 1rem; font-weight: 600; fill: var(--text-light); }
-        .ishikawa-diagram .effect-text { font-size: 1.2rem; font-weight: 700; fill: var(--primary-color); }
+        .ishikawa-diagram text { font-size: 0.875rem; font-weight: 600; fill: var(--text-light); }
+        .ishikawa-diagram .effect-text { font-size: 1rem; font-weight: 700; fill: var(--primary-color); }
+        .ishikawa-diagram .category-text { font-size: 0.875rem; font-weight: 600; fill: var(--text-color); }
         .ishikawa-input { position: absolute; }
-        .ishikawa-input textarea { width: 150px; height: 80px; font-size: 0.8rem; padding: 4px; border-radius: 4px; border: 1px dashed var(--primary-color); background: #fafaff; }
-
-        /* --- Avatars --- */
-        .avatar-stack { display: flex; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; margin-left: -10px; background-color: var(--border-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; }
-        .avatar:first-child { margin-left: 0; }
+        .ishikawa-input textarea { width: 140px; height: 60px; font-size: 0.75rem; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid var(--primary-color); background: #fafaff; resize: none; }
+        .ishikawa-input textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); }
         
+        /* --- Avatars et Équipe --- */
+        .avatar-stack { display: flex; align-items: center; margin: 1rem 0; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.875rem; cursor: pointer; position: relative; }
+        .avatar:first-child { margin-left: 0; }
+        .avatar:hover { z-index: 10; transform: scale(1.1); }
+        .add-member-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--border-color); background: var(--background-color); color: var(--text-light); display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 1rem; }
+        .add-member-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        
+        /* --- Notifications --- */
+        .notification { position: fixed; top: 1rem; right: 1rem; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1rem 1.5rem; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; max-width: 300px; }
+        .notification.show { transform: translateX(0); }
+        .notification.success { border-left: 4px solid var(--success-color); }
+        .notification.error { border-left: 4px solid var(--error-color); }
+        .notification.warning { border-left: 4px solid var(--warning-color); }
+        .notification.info { border-left: 4px solid var(--info-color); }
+        
+        /* --- Modal --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); border-radius: var(--card-radius); padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { font-size: 1.25rem; font-weight: 600; }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+        
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar.collapsed { width: 60px; }
+            .sidebar-header { padding: 1rem; font-size: 0; }
+            .nav-item a { padding: 0.75rem; margin: 0.25rem 0.5rem; justify-content: center; }
+            .nav-item .nav-text, .nav-item .step-status { display: none; }
+            .main-header { padding: 1rem; }
+            .workspace { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* --- Animations --- */
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .loading { animation: pulse 1.5s infinite; }
+
+        /* --- Auto-sauvegarde --- */
+        .auto-save-indicator { 
+            display: none; 
+            align-items: center; 
+            gap: 0.5rem; 
+            font-size: 0.75rem; 
+            color: var(--success-color); 
+            margin-left: 1rem; 
+        }
+        .auto-save-indicator.saving { color: var(--warning-color); }
+        .auto-save-indicator.error { color: var(--error-color); }
+        
+        /* --- Filtres --- */
+        .filter-section { 
+            display: flex; 
+            gap: 1rem; 
+            margin-bottom: 1.5rem; 
+            flex-wrap: wrap; 
+            align-items: center; 
+        }
+        .filter-section select { 
+            padding: 0.5rem; 
+            border: 1px solid var(--border-color); 
+            border-radius: 0.5rem; 
+            font-size: 0.875rem; 
+        }
+        .search-box { 
+            flex: 1; 
+            min-width: 200px; 
+        }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <nav class="sidebar">
-            <div class="sidebar-header"><span class="material-symbols-outlined">shield</span>8D-Master</div>
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="material-symbols-outlined">shield</span>
+                <span class="nav-text">8D-Master</span>
+            </div>
             <ul class="nav-list" id="navList">
-                <li class="nav-item"><a href="#" id="dashboard-link" class="active"><span class="material-symbols-outlined nav-icon">dashboard</span>Tableau de bord</a></li>
+                <li class="nav-item">
+                    <a href="#" id="dashboard-link" class="active">
+                        <span class="material-symbols-outlined nav-icon">dashboard</span>
+                        <span class="nav-text">Tableau de bord</span>
+                    </a>
+                </li>
                 <li style="height: 1px; background: var(--border-color); margin: 1rem;"></li>
-                <li class="nav-item"><a href="#" data-step="d0"><span class="material-symbols-outlined nav-icon">flag</span>D0: Planifier<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d1"><span class="material-symbols-outlined nav-icon">groups</span>D1: Équipe<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d2"><span class="material-symbols-outlined nav-icon">description</span>D2: Décrire<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d3"><span class="material-symbols-outlined nav-icon">health_and_safety</span>D3: Sécuriser<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d4"><span class="material-symbols-outlined nav-icon">search</span>D4: Cause Racine<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d5"><span class="material-symbols-outlined nav-icon">build_circle</span>D5: Actions Correctives<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d6"><span class="material-symbols-outlined nav-icon">task_alt</span>D6: Mettre en œuvre<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d7"><span class="material-symbols-outlined nav-icon">event_repeat</span>D7: Prévenir<span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a href="#" data-step="d8"><span class="material-symbols-outlined nav-icon">celebration</span>D8: Féliciter<span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d0"><span class="material-symbols-outlined nav-icon">flag</span><span class="nav-text">D0: Planifier</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d1"><span class="material-symbols-outlined nav-icon">groups</span><span class="nav-text">D1: Équipe</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d2"><span class="material-symbols-outlined nav-icon">description</span><span class="nav-text">D2: Décrire</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d3"><span class="material-symbols-outlined nav-icon">health_and_safety</span><span class="nav-text">D3: Sécuriser</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d4"><span class="material-symbols-outlined nav-icon">search</span><span class="nav-text">D4: Cause Racine</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d5"><span class="material-symbols-outlined nav-icon">build_circle</span><span class="nav-text">D5: Actions Correctives</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d6"><span class="material-symbols-outlined nav-icon">task_alt</span><span class="nav-text">D6: Mettre en œuvre</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d7"><span class="material-symbols-outlined nav-icon">event_repeat</span><span class="nav-text">D7: Prévenir</span><span class="material-symbols-outlined step-status"></span></a></li>
+                <li class="nav-item"><a href="#" data-step="d8"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
             </ul>
         </nav>
 
@@ -110,190 +228,150 @@
             <header class="main-header">
                 <div class="project-info" id="project-header">
                     <h1>Tableau de bord</h1>
+                    <div class="project-meta"></div>
                 </div>
-                <div class="actions">
-                    <button class="btn secondary"><span class="material-symbols-outlined">upload_file</span>Charger</button>
-                    <button class="btn secondary" id="save-btn" style="display:none;"><span class="material-symbols-outlined">save</span>Enregistrer</button>
-                    <button class="btn" id="pdf-btn" style="display:none;"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
+                <div style="display: flex; align-items: center;">
+                    <div class="auto-save-indicator" id="auto-save-indicator">
+                        <span class="material-symbols-outlined">sync</span>
+                        <span id="save-status">Auto-sauvegardé</span>
+                    </div>
+                    <div class="actions">
+                        <button class="btn secondary" id="toggle-sidebar"><span class="material-symbols-outlined">menu</span></button>
+                        <button class="btn secondary" onclick="importData()"><span class="material-symbols-outlined">upload_file</span>Importer</button>
+                        <button class="btn secondary" id="save-btn" style="display:none;" onclick="saveProject()"><span class="material-symbols-outlined">save</span>Enregistrer</button>
+                        <button class="btn" id="pdf-btn" style="display:none;" onclick="generatePDF()"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
+                    </div>
                 </div>
             </header>
 
             <div class="workspace">
                 <!-- VUE TABLEAU DE BORD -->
                 <div id="dashboard-view" class="view active">
-                    <h2>Projets 8D en cours</h2>
-                    <div id="project-list" class="dashboard-grid" style="margin-top: 1.5rem;">
+                    <div class="dashboard-header">
+                        <h2>Projets 8D en cours</h2>
+                        <button class="btn" onclick="createNewProject()">
+                            <span class="material-symbols-outlined">add</span>Nouveau Projet
+                        </button>
+                    </div>
+                    
+                    <!-- Filtres et recherche -->
+                    <div class="filter-section">
+                        <div class="search-box">
+                            <input type="text" id="project-search" placeholder="Rechercher des projets..." 
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem;">
+                        </div>
+                        <select id="status-filter">
+                            <option value="">Tous les statuts</option>
+                            <option value="in-progress">En cours</option>
+                            <option value="completed">Terminés</option>
+                            <option value="on-hold">En attente</option>
+                        </select>
+                        <select id="sort-filter">
+                            <option value="updated">Tri par mise à jour</option>
+                            <option value="created">Tri par création</option>
+                            <option value="progress">Tri par avancement</option>
+                            <option value="title">Tri alphabétique</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-projects">0</div>
+                            <div class="stat-label">Total Projets</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="active-projects">0</div>
+                            <div class="stat-label">En Cours</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="completed-projects">0</div>
+                            <div class="stat-label">Terminés</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avg-completion">0%</div>
+                            <div class="stat-label">Avancement Moyen</div>
+                        </div>
+                    </div>
+                    
+                    <div id="project-list" class="dashboard-grid">
                         <!-- Les cartes de projet seront injectées ici par JS -->
                     </div>
                 </div>
 
                 <!-- VUE PROJET -->
                 <div id="project-view" class="view">
+                    <div class="breadcrumb">
+                        <a href="#" onclick="switchView('dashboard')">Tableau de bord</a>
+                        <span class="material-symbols-outlined">chevron_right</span>
+                        <span id="breadcrumb-project">Projet</span>
+                    </div>
+
                     <!-- D0: Planifier -->
-                    <div id="d0" class="card"><div class="card-content">
-                        <div class="step-header"><h2>D0 : Planifier</h2><button class="btn" onclick="updateStepStatus('d0', 'completed')">Marquer comme terminé</button></div>
-                        <!-- Contenu du formulaire D0 -->
-                    </div></div>
+                    <div id="d0" class="card">
+                        <div class="card-content">
+                            <div class="step-header">
+                                <h2>D0 : Planifier</h2>
+                                <div class="step-actions">
+                                    <button class="btn secondary" onclick="resetStep('d0')">Réinitialiser</button>
+                                    <button class="btn" onclick="updateStepStatus('d0', 'completed')">Marquer comme terminé</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="problem-title">Titre du problème *</label>
+                                    <input type="text" id="problem-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="problem-severity">Sévérité</label>
+                                    <select id="problem-severity">
+                                        <option value="low">Faible</option>
+                                        <option value="medium">Moyenne</option>
+                                        <option value="high">Élevée</option>
+                                        <option value="critical">Critique</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reported-by">Signalé par</label>
+                                    <input type="text" id="reported-by" placeholder="Nom du rapporteur">
+                                </div>
+                                <div class="form-group">
+                                    <label for="report-date">Date de signalement</label>
+                                    <input type="date" id="report-date">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="problem-description">Description du problème *</label>
+                                <textarea id="problem-description" placeholder="Décrivez le problème en détail..." required></textarea>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- D1: Équipe -->
-                    <div id="d1" class="card"><div class="card-content">
-                        <div class="step-header"><h2>D1 : Former le groupe de travail</h2><button class="btn" onclick="updateStepStatus('d1', 'completed')">Marquer comme terminé</button></div>
-                        <label>Équipe assignée</label>
-                        <div class="avatar-stack">
-                            <div class="avatar" style="background-color: #ef4444;">JD</div>
-                            <div class="avatar" style="background-color: #3b82f6;">MC</div>
-                            <div class="avatar" style="background-color: #10b981;">LP</div>
-                        </div>
-                         <!-- Contenu du formulaire D1 -->
-                    </div></div>
-
-                    <!-- D4: Cause Racine (avec Ishikawa) -->
-                    <div id="d4" class="card"><div class="card-content">
-                        <div class="step-header"><h2>D4 : Identifier la cause racine</h2><button class="btn" onclick="updateStepStatus('d4', 'completed')">Marquer comme terminé</button></div>
-                        <div class="ishikawa-container">
-                             <svg id="ishikawa-diagram" class="ishikawa-diagram" viewBox="0 0 1000 500">
-                                <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#111827" /></marker></defs>
-                                <line class="main-spine" x1="100" y1="250" x2="900" y2="250" />
-                                <text x="910" y="255" class="effect-text">Problème</text>
-                                <!-- Arêtes -->
-                                <line x1="250" y1="100" x2="500" y2="250" /><text x="230" y="90">Matière</text>
-                                <line x1="600" y1="100" x2="500" y2="250" /><text x="580" y="90">Main d'œuvre</text>
-                                <line x1="250" y1="400" x2="500" y2="250" /><text x="230" y="420">Méthode</text>
-                                <line x1="600" y1="400" x2="500" y2="250" /><text x="580" y="420">Milieu</text>
-                                <line x1="900" y1="150" x2="700" y2="250" /><text x="880" y="140">Matériel</text>
-                            </svg>
-                            <!-- Inputs de causes (positionnés par JS) -->
-                            <div class="ishikawa-input" style="top:10%; left:30%;"><textarea placeholder="Cause possible..."></textarea></div>
-                            <div class="ishikawa-input" style="top:10%; left:55%;"><textarea placeholder="Cause possible..."></textarea></div>
-                            <div class="ishikawa-input" style="top:70%; left:30%;"><textarea placeholder="Cause possible..."></textarea></div>
-                        </div>
-                    </div></div>
-                    <!-- Autres cartes D2, D3, D5... seront ici -->
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // --- ÉTAT DE L'APPLICATION (Source de vérité) ---
-        const appState = {
-            currentView: 'dashboard', // 'dashboard' ou 'project'
-            activeProjectId: null,
-            projects: [
-                { id: 1, title: 'Anomalie sur pièce XF-123', status: 'in-progress', steps: { d0: 'completed', d1: 'completed', d2: 'in-progress'} },
-                { id: 2, title: 'Vibration anormale Ligne 3', status: 'in-progress', steps: { d0: 'completed', d1: 'in-progress' } },
-                { id: 3, title: 'Fuite Huile Compresseur C-05', status: 'completed', steps: { d0:'c',d1:'c',d2:'c',d3:'c',d4:'c',d5:'c',d6:'c',d7:'c',d8:'c' } },
-            ]
-        };
-
-        // --- ÉLÉMENTS DU DOM ---
-        const dashboardView = document.getElementById('dashboard-view');
-        const projectView = document.getElementById('project-view');
-        const projectList = document.getElementById('project-list');
-        const projectHeader = document.getElementById('project-header');
-        const dashboardLink = document.getElementById('dashboard-link');
-        const navList = document.getElementById('navList');
-        
-        // --- FONCTIONS DE RENDU ---
-
-        function renderDashboard() {
-            projectList.innerHTML = '';
-            appState.projects.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'project-card';
-                card.dataset.projectId = p.id;
-                card.innerHTML = `
-                    <h3>${p.title}</h3>
-                    <span class="status ${p.status}">${p.status === 'in-progress' ? 'En cours' : 'Terminé'}</span>
-                `;
-                projectList.appendChild(card);
-            });
-        }
-        
-        function renderProject(projectId) {
-            const project = appState.projects.find(p => p.id === projectId);
-            if (!project) return;
-            
-            projectHeader.innerHTML = `<h1>${project.title}</h1>`;
-            document.querySelectorAll('#save-btn, #pdf-btn').forEach(btn => btn.style.display = 'inline-flex');
-
-            // Mettre à jour les statuts dans la sidebar
-            document.querySelectorAll('.step-status').forEach(el => {
-                el.textContent = '';
-                el.className = 'material-symbols-outlined step-status';
-            });
-
-            if (project.steps) {
-                for (const [step, status] of Object.entries(project.steps)) {
-                    const statusEl = document.querySelector(`a[data-step="${step}"] .step-status`);
-                    if(statusEl) {
-                        if (status === 'completed' || status === 'c') {
-                            statusEl.textContent = 'check_circle';
-                            statusEl.classList.add('completed');
-                        } else if (status === 'in-progress') {
-                            statusEl.textContent = 'pending';
-                            statusEl.classList.add('in-progress');
-                        }
-                    }
-                }
-            }
-        }
-        
-        function switchView(viewName) {
-            appState.currentView = viewName;
-            if (viewName === 'dashboard') {
-                dashboardView.classList.add('active');
-                projectView.classList.remove('active');
-                projectHeader.innerHTML = '<h1>Tableau de bord</h1>';
-                document.querySelectorAll('#save-btn, #pdf-btn').forEach(btn => btn.style.display = 'none');
-                dashboardLink.classList.add('active');
-                document.querySelectorAll('a[data-step]').forEach(a => a.classList.remove('active'));
-
-            } else if (viewName === 'project') {
-                dashboardView.classList.remove('active');
-                projectView.classList.add('active');
-                dashboardLink.classList.remove('active');
-            }
-        }
-
-        // --- LOGIQUE DE L'APPLICATION ---
-
-        window.updateStepStatus = (step, newStatus) => {
-            if (!appState.activeProjectId) return;
-            const project = appState.projects.find(p => p.id === appState.activeProjectId);
-            if (project) {
-                if (!project.steps) project.steps = {};
-                project.steps[step] = newStatus;
-                renderProject(appState.activeProjectId);
-            }
-        }
-
-        function handleProjectClick(e) {
-            const card = e.target.closest('.project-card');
-            if (!card) return;
-            
-            appState.activeProjectId = parseInt(card.dataset.projectId);
-            switchView('project');
-            renderProject(appState.activeProjectId);
-        }
-
-        // --- INITIALISATION ---
-        function initApp() {
-            // Event Listeners
-            projectList.addEventListener('click', handleProjectClick);
-            dashboardLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchView('dashboard');
-            });
-
-            // Premier rendu
-            renderDashboard();
-        }
-
-        initApp();
-    });
-    </script>
-</body>
-</html>
+                    <div id="d1" class="card">
+                        <div class="card-content">
+                            <div class="step-header">
+                                <h2>D1 : Former le groupe de travail</h2>
+                                <div class="step-actions">
+                                    <button class="btn secondary" onclick="resetStep('d1')">Réinitialiser</button>
+                                    <button class="btn" onclick="updateStepStatus('d1', 'completed')">Marquer comme terminé</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Équipe assignée</label>
+                                <div class="avatar-stack" id="team-members">
+                                    <div class="add-member-btn" onclick="addTeamMember()">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="dynamic-table" id="team-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Rôle</th>
+                                            <th>Département</th>
