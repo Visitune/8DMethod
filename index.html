@@ -1,809 +1,878 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8D-Master</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>8D-Master — version corrigée</title>
 
-    <style>
-        :root {
-            --primary-color: #4f46e5; --primary-light: #e0e7ff; --text-color: #111827; --text-light: #4b5563;
-            --background-color: #f3f4f6; --border-color: #d1d5db; --card-bg: #ffffff;
-            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            --card-radius: 0.75rem; --success-color: #16a34a; --warning-color: #f97316;
-            --error-color: #dc2626; --info-color: #0284c7;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-size: 16px; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-        
-        /* --- Structure Principale --- */
-        .app-container { display: flex; height: 100vh; }
-        .sidebar { width: 280px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: width 0.3s ease; }
-        .sidebar.collapsed { width: 60px; }
-        .sidebar-header { padding: 1.5rem; font-size: 1.5em; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); }
-        .nav-list { list-style-type: none; flex-grow: 1; padding-top: 1rem; }
-        .nav-item a { display: flex; align-items: center; padding: 0.75rem 1.5rem; margin: 0.25rem 1rem; text-decoration: none; color: var(--text-light); font-weight: 500; border-radius: 0.5rem; transition: all 0.2s ease-in-out; cursor: pointer; }
-        .nav-item a:hover { background-color: var(--background-color); color: var(--text-color); }
-        .nav-item a.active { background-color: var(--primary-light); color: var(--primary-color); }
-        .nav-item .nav-icon { margin-right: 1rem; flex-shrink: 0; }
-        .nav-item .step-status { margin-left: auto; font-size: 1.25rem; transition: color 0.3s ease; }
-        .step-status.completed { color: var(--success-color); }
-        .step-status.in-progress { color: var(--warning-color); }
-        
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: rgba(255, 255, 255, 0.95); border-bottom: 1px solid var(--border-color); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10; }
-        .project-info h1 { font-size: 1.25rem; font-weight: 600; }
-        .project-info .project-meta { font-size: 0.875rem; color: var(--text-light); margin-top: 0.25rem; }
-        .actions .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: 500; margin-left: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: background-color 0.2s; }
-        .actions .btn:hover { background-color: #4338ca; }
-        .actions .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .actions .btn.secondary { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
-        .actions .btn.secondary:hover { background-color: var(--background-color); }
-        .actions .btn.danger { background-color: var(--error-color); }
-        .actions .btn.danger:hover { background-color: #b91c1c; }
-        
-        .workspace { padding: 2rem; }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* --- Tableau de Bord --- */
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1.5rem; text-align: center; }
-        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
-        .stat-label { font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-        .project-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1.5rem; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; }
-        .project-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
-        .project-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .project-card .project-id { font-size: 0.75rem; color: var(--text-light); margin-bottom: 1rem; }
-        .project-card .status { font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 500; display: inline-block; margin-bottom: 1rem; }
-        .project-card .status.in-progress { background-color: #ffedd5; color: #9a3412; }
-        .project-card .status.completed { background-color: #dcfce7; color: #166534; }
-        .project-card .status.on-hold { background-color: #fef3c7; color: #92400e; }
-        .project-card .project-progress { margin-top: 1rem; }
-        .progress-bar { width: 100%; height: 6px; background-color: var(--background-color); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background-color: var(--primary-color); transition: width 0.3s ease; }
-        .project-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.875rem; color: var(--text-light); }
-        .project-actions { position: absolute; top: 1rem; right: 1rem; opacity: 0; transition: opacity 0.2s; }
-        .project-card:hover .project-actions { opacity: 1; }
-        .action-btn { background: none; border: none; cursor: pointer; padding: 0.25rem; color: var(--text-light); border-radius: 0.25rem; }
-        .action-btn:hover { background-color: var(--background-color); color: var(--text-color); }
-        
-        /* --- Vue Projet --- */
-        .card { background-color: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); margin-bottom: 2rem; }
-        .card-content { padding: 2rem; }
-        .step-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-        .step-header h2 { font-size: 1.5rem; font-weight: 600; flex-grow: 1; }
-        .step-actions { display: flex; gap: 0.5rem; }
-        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-light); }
-        .breadcrumb a { color: var(--primary-color); text-decoration: none; cursor: pointer; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        
-        /* --- Éléments de Formulaire --- */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.875rem; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.2s; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        .form-group textarea { min-height: 120px; resize: vertical; }
-        
-        /* --- Tableaux Dynamiques --- */
-        .table-container { overflow-x: auto; margin: 1rem 0; }
-        .dynamic-table { width: 100%; border-collapse: collapse; }
-        .dynamic-table th, .dynamic-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .dynamic-table th { background-color: var(--background-color); font-weight: 600; }
-        .dynamic-table input, .dynamic-table select { width: 100%; border: none; background: transparent; padding: 0.5rem; }
-        .dynamic-table input:focus, .dynamic-table select:focus { outline: none; background-color: var(--primary-light); }
-        .remove-row { background: var(--error-color); color: white; border: none; border-radius: 0.25rem; padding: 0.25rem; cursor: pointer; }
-        .add-row-btn { margin-top: 1rem; }
-        
-        /* --- Modal --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); border-radius: var(--card-radius); padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .modal-header h3 { font-size: 1.25rem; font-weight: 600; }
-        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
-        
-        /* --- Notifications --- */
-        .notification { position: fixed; top: 1rem; right: 1rem; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); padding: 1rem 1.5rem; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; max-width: 300px; }
-        .notification.show { transform: translateX(0); }
-        .notification.success { border-left: 4px solid var(--success-color); }
-        .notification.error { border-left: 4px solid var(--error-color); }
-        .notification.warning { border-left: 4px solid var(--warning-color); }
-        .notification.info { border-left: 4px solid var(--info-color); }
-        
-        /* --- Responsive --- */
-        @media (max-width: 768px) {
-            .sidebar { width: 60px; }
-            .sidebar.collapsed { width: 60px; }
-            .sidebar-header { padding: 1rem; font-size: 0; }
-            .nav-item a { padding: 0.75rem; margin: 0.25rem 0.5rem; justify-content: center; }
-            .nav-item .nav-text, .nav-item .step-status { display: none; }
-            .main-header { padding: 1rem; }
-            .workspace { padding: 1rem; }
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <style>
+    :root{
+      --primary-color:#4f46e5;--primary-light:#e0e7ff;--text-color:#111827;--text-light:#4b5563;
+      --background-color:#f3f4f6;--border-color:#d1d5db;--card-bg:#ffffff;
+      --card-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);
+      --card-radius:.75rem;--success-color:#16a34a;--warning-color:#f97316;--error-color:#dc2626;--info-color:#0284c7
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:16px}
+    body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--background-color);color:var(--text-color);line-height:1.5;-webkit-font-smoothing:antialiased}
+
+    /* Layout */
+    .app-container{display:flex;height:100vh;overflow:hidden}
+    .sidebar{width:280px;background:var(--card-bg);border-right:1px solid var(--border-color);display:flex;flex-direction:column;transition:width .25s ease}
+    .sidebar.collapsed{width:68px}
+    .sidebar-header{padding:1rem 1.25rem;font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:.75rem;color:var(--primary-color);border-bottom:1px solid var(--border-color)}
+    .nav-list{list-style:none;flex-grow:1;padding:.75rem 0}
+    .nav-item a{display:flex;align-items:center;gap:1rem;padding:.6rem 1rem;margin:.15rem .75rem;text-decoration:none;color:var(--text-light);font-weight:500;border-radius:.5rem;transition:all .15s ease;cursor:pointer}
+    .nav-item a:hover{background:var(--background-color);color:var(--text-color)}
+    .nav-item a.active{background:var(--primary-light);color:var(--primary-color)}
+    .nav-item .nav-icon{flex-shrink:0}
+    .nav-item .step-status{margin-left:auto;font-size:1.2rem;transition:color .2s ease}
+    .step-status.completed{color:var(--success-color)}
+    .step-status.in-progress{color:var(--warning-color)}
+
+    /* Hide text when collapsed */
+    .sidebar.collapsed .nav-text,
+    .sidebar.collapsed .step-status{display:none}
+    .sidebar.collapsed .nav-item a{justify-content:center}
+
+    .main-content{flex:1;display:flex;flex-direction:column;min-width:0}
+    .main-header{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1.25rem;background:rgba(255,255,255,.95);border-bottom:1px solid var(--border-color);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+    .project-info h1{font-size:1.1rem;font-weight:600}
+    .project-info .project-meta{font-size:.85rem;color:var(--text-light);margin-top:.2rem}
+    .actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+    .btn{background:var(--primary-color);color:#fff;border:none;padding:.55rem .95rem;border-radius:.5rem;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:.45rem;transition:background .15s ease}
+    .btn:hover{background:#4338ca}
+    .btn.secondary{background:var(--card-bg);color:var(--text-color);border:1px solid var(--border-color)}
+    .btn.secondary:hover{background:var(--background-color)}
+    .btn.danger{background:var(--error-color)}
+    .btn.danger:hover{background:#b91c1c}
+    .btn.icon{padding:.5rem;width:38px;justify-content:center}
+
+    .workspace{padding:1rem 1.25rem;overflow:auto}
+    .view{display:none}
+    .view.active{display:block;animation:fadeIn .25s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Dashboard */
+    .dashboard-header{display:flex;justify-content:space-between;align-items:center;margin:0 0 1rem}
+    .dashboard-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem}
+    .stat-card{background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);padding:1rem;text-align:center}
+    .stat-value{font-size:1.6rem;font-weight:800;color:var(--primary-color)}
+    .stat-label{font-size:.85rem;color:var(--text-light);margin-top:.35rem}
+    .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+    .project-card{background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);padding:1rem;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative}
+    .project-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px -4px rgba(0,0,0,.16), 0 2px 4px -2px rgba(0,0,0,.12)}
+    .project-card h3{font-size:1.05rem;font-weight:700;margin:.35rem 0 .25rem}
+    .project-card .project-id{font-size:.75rem;color:var(--text-light)}
+    .status{font-size:.8rem;padding:.15rem .55rem;border-radius:999px;font-weight:600;display:inline-block;margin:.25rem 0 .5rem}
+    .status.in-progress{background:#ffedd5;color:#9a3412}
+    .status.completed{background:#dcfce7;color:#166534}
+    .status.planned{background:#e5e7eb;color:#374151}
+    .project-progress{margin-top:.25rem}
+    .progress-bar{width:100%;height:6px;background:var(--background-color);border-radius:3px;overflow:hidden}
+    .progress-fill{height:100%;background:var(--primary-color);transition:width .25s ease}
+    .project-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.6rem;font-size:.8rem;color:var(--text-light)}
+    .project-actions{position:absolute;top:.5rem;right:.5rem;opacity:0;transition:opacity .15s}
+    .project-card:hover .project-actions{opacity:1}
+    .action-btn{background:none;border:none;cursor:pointer;padding:.25rem;color:var(--text-light);border-radius:.35rem}
+    .action-btn:hover{background:var(--background-color);color:var(--text-color)}
+
+    /* Project view */
+    .card{background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);margin:0 0 1rem}
+    .card-content{padding:1rem 1.25rem}
+    .step-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .step-header h2{font-size:1.25rem;font-weight:700;margin-right:.75rem}
+    .step-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .breadcrumb{display:flex;align-items:center;gap:.4rem;margin:.25rem 0 1rem;font-size:.85rem;color:var(--text-light)}
+    .breadcrumb a{color:var(--primary-color);text-decoration:none;cursor:pointer}
+    .breadcrumb a:hover{text-decoration:underline}
+
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-weight:600;margin-bottom:.35rem;font-size:.9rem}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:.65rem;border:1px solid var(--border-color);border-radius:.5rem;font-size:1rem;transition:border-color .15s}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+    .form-group textarea{min-height:100px;resize:vertical}
+
+    /* Tables dynamiques */
+    .table-container{overflow-x:auto;margin:.5rem 0}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.65rem;text-align:left;border-bottom:1px solid var(--border-color)}
+    th{background:var(--background-color);font-weight:700}
+    td input,td select{width:100%;border:none;background:transparent;padding:.35rem}
+    td input:focus,td select:focus{outline:none;background:var(--primary-light)}
+    .remove-row{background:var(--error-color);color:#fff;border:none;border-radius:.35rem;padding:.2rem .45rem;cursor:pointer}
+
+    /* Modal */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000}
+    .modal.show{display:flex;align-items:center;justify-content:center}
+    .modal-content{background:var(--card-bg);border-radius:var(--card-radius);padding:1rem 1.25rem;max-width:520px;width:92%;max-height:80vh;overflow:auto}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+    .modal-header h3{font-size:1.1rem;font-weight:800}
+    .close-modal{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-light)}
+
+    /* Notifications */
+    .notification{position:fixed;top:1rem;right:1rem;background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);padding:.8rem 1rem;z-index:1100;transform:translateX(400px);transition:transform .25s ease;max-width:320px}
+    .notification.show{transform:translateX(0)}
+    .notification.success{border-left:4px solid var(--success-color)}
+    .notification.error{border-left:4px solid var(--error-color)}
+    .notification.warning{border-left:4px solid var(--warning-color)}
+    .notification.info{border-left:4px solid var(--info-color)}
+
+    /* Responsive */
+    @media (max-width: 768px){
+      .sidebar{width:68px}
+      .sidebar.collapsed{width:68px}
+      .sidebar-header{padding:.75rem;font-size:0}
+      .nav-item a{padding:.6rem;margin:.15rem .5rem;justify-content:center}
+      .nav-item .nav-text,.nav-item .step-status{display:none}
+      .main-header{padding:.75rem}
+      .workspace{padding:.75rem}
+      .dashboard-grid{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+    }
+
+    /* Print */
+    @media print{
+      .sidebar,.main-header,.breadcrumb,#dashboard-view,.project-actions,.notification{display:none !important}
+      body{background:#fff}
+      .workspace{padding:0}
+      .card{box-shadow:none;border:1px solid #e5e7eb;page-break-inside:avoid}
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <span class="material-symbols-outlined">shield</span>
-                <span class="nav-text">8D-Master</span>
-            </div>
-            <ul class="nav-list" id="navList">
-                <li class="nav-item">
-                    <a id="dashboard-link" class="active">
-                        <span class="material-symbols-outlined nav-icon">dashboard</span>
-                        <span class="nav-text">Tableau de bord</span>
-                    </a>
-                </li>
-                <li style="height: 1px; background: var(--border-color); margin: 1rem;"></li>
-                <li class="nav-item"><a data-step="d0"><span class="material-symbols-outlined nav-icon">flag</span><span class="nav-text">D0: Planifier</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d1"><span class="material-symbols-outlined nav-icon">groups</span><span class="nav-text">D1: Équipe</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d2"><span class="material-symbols-outlined nav-icon">description</span><span class="nav-text">D2: Décrire</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d3"><span class="material-symbols-outlined nav-icon">health_and_safety</span><span class="nav-text">D3: Sécuriser</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d4"><span class="material-symbols-outlined nav-icon">search</span><span class="nav-text">D4: Cause Racine</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d5"><span class="material-symbols-outlined nav-icon">build_circle</span><span class="nav-text">D5: Actions Correctives</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d6"><span class="material-symbols-outlined nav-icon">task_alt</span><span class="nav-text">D6: Mettre en œuvre</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d7"><span class="material-symbols-outlined nav-icon">event_repeat</span><span class="nav-text">D7: Prévenir</span><span class="material-symbols-outlined step-status"></span></a></li>
-                <li class="nav-item"><a data-step="d8"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
-            </ul>
-        </nav>
+  <div class="app-container">
+    <nav class="sidebar" id="sidebar" aria-label="Navigation 8D">
+      <div class="sidebar-header">
+        <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+        <span class="nav-text">8D-Master</span>
+      </div>
+      <ul class="nav-list" id="navList">
+        <li class="nav-item">
+          <a id="dashboard-link" class="active" role="button" aria-controls="dashboard-view">
+            <span class="material-symbols-outlined nav-icon" aria-hidden="true">dashboard</span>
+            <span class="nav-text">Tableau de bord</span>
+          </a>
+        </li>
+        <li style="height:1px;background:var(--border-color);margin:.65rem 1rem"></li>
+        <li class="nav-item"><a data-step="d0" role="button"><span class="material-symbols-outlined nav-icon">flag</span><span class="nav-text">D0: Planifier</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d1" role="button"><span class="material-symbols-outlined nav-icon">groups</span><span class="nav-text">D1: Équipe</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d2" role="button"><span class="material-symbols-outlined nav-icon">description</span><span class="nav-text">D2: Décrire</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d3" role="button"><span class="material-symbols-outlined nav-icon">health_and_safety</span><span class="nav-text">D3: Sécuriser</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d4" role="button"><span class="material-symbols-outlined nav-icon">search</span><span class="nav-text">D4: Cause Racine</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d5" role="button"><span class="material-symbols-outlined nav-icon">build_circle</span><span class="nav-text">D5: Actions Correctives</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d6" role="button"><span class="material-symbols-outlined nav-icon">task_alt</span><span class="nav-text">D6: Mettre en œuvre</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d7" role="button"><span class="material-symbols-outlined nav-icon">event_repeat</span><span class="nav-text">D7: Prévenir</span><span class="material-symbols-outlined step-status"></span></a></li>
+        <li class="nav-item"><a data-step="d8" role="button"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
+      </ul>
+    </nav>
 
-        <main class="main-content">
-            <header class="main-header">
-                <div class="project-info" id="project-header">
-                    <h1>Tableau de bord</h1>
-                    <div class="project-meta"></div>
-                </div>
-                <div class="actions">
-                    <button class="btn secondary" id="toggle-sidebar"><span class="material-symbols-outlined">menu</span></button>
-                    <button class="btn" id="pdf-btn" style="display:none;"><span class="material-symbols-outlined">picture_as_pdf</span>Générer PDF</button>
-                </div>
-            </header>
-
-            <div class="workspace">
-                <!-- VUE TABLEAU DE BORD -->
-                <div id="dashboard-view" class="view active">
-                    <div class="dashboard-header">
-                        <h2>Projets 8D en cours</h2>
-                        <button class="btn" id="new-project-btn">
-                            <span class="material-symbols-outlined">add</span>Nouveau Projet
-                        </button>
-                    </div>
-                    
-                    <div class="dashboard-stats">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-projects">0</div>
-                            <div class="stat-label">Total Projets</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="active-projects">0</div>
-                            <div class="stat-label">En Cours</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="completed-projects">0</div>
-                            <div class="stat-label">Terminés</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="avg-completion">0%</div>
-                            <div class="stat-label">Avancement Moyen</div>
-                        </div>
-                    </div>
-                    
-                    <div id="project-list" class="dashboard-grid">
-                        <!-- Les cartes de projet seront injectées ici -->
-                    </div>
-                </div>
-
-                <!-- VUE PROJET -->
-                <div id="project-view" class="view">
-                    <div class="breadcrumb">
-                        <a id="breadcrumb-dashboard">Tableau de bord</a>
-                        <span class="material-symbols-outlined">chevron_right</span>
-                        <span id="breadcrumb-project">Projet</span>
-                    </div>
-
-                    <!-- D0: Planifier -->
-                    <div id="d0" class="card">
-                        <div class="card-content">
-                            <div class="step-header">
-                                <h2>D0 : Planifier</h2>
-                                <div class="step-actions">
-                                    <button class="btn secondary" onclick="resetStep('d0')">Réinitialiser</button>
-                                    <button class="btn" onclick="markStepCompleted('d0')">Marquer comme terminé</button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="problem-title">Titre du problème *</label>
-                                    <input type="text" id="problem-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="problem-severity">Sévérité</label>
-                                    <select id="problem-severity">
-                                        <option value="low">Faible</option>
-                                        <option value="medium">Moyenne</option>
-                                        <option value="high">Élevée</option>
-                                        <option value="critical">Critique</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reported-by">Signalé par</label>
-                                    <input type="text" id="reported-by" placeholder="Nom du rapporteur">
-                                </div>
-                                <div class="form-group">
-                                    <label for="report-date">Date de signalement</label>
-                                    <input type="date" id="report-date">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="problem-description">Description du problème *</label>
-                                <textarea id="problem-description" placeholder="Décrivez le problème en détail..." required></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- D1: Équipe -->
-                    <div id="d1" class="card">
-                        <div class="card-content">
-                            <div class="step-header">
-                                <h2>D1 : Former le groupe de travail</h2>
-                                <div class="step-actions">
-                                    <button class="btn secondary" onclick="resetStep('d1')">Réinitialiser</button>
-                                    <button class="btn" onclick="markStepCompleted('d1')">Marquer comme terminé</button>
-                                </div>
-                            </div>
-                            
-                            <div class="table-container">
-                                <table class="dynamic-table" id="team-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nom</th>
-                                            <th>Rôle</th>
-                                            <th>Département</th>
-                                            <th>Email</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><input type="text" placeholder="Nom complet"></td>
-                                            <td>
-                                                <select>
-                                                    <option value="member">Membre</option>
-                                                    <option value="leader">Leader</option>
-                                                    <option value="expert">Expert</option>
-                                                </select>
-                                            </td>
-                                            <td><input type="text" placeholder="Département"></td>
-                                            <td><input type="email" placeholder="Email"></td>
-                                            <td><button class="remove-row" onclick="removeTableRow(this)">×</button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <button class="btn secondary add-row-btn" onclick="addTeamRow()">
-                                    <span class="material-symbols-outlined">add</span>Ajouter un membre
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- D2-D8 (autres étapes) -->
-                    <div id="d2" class="card">
-                        <div class="card-content">
-                            <div class="step-header">
-                                <h2>D2 : Décrire le problème</h2>
-                                <div class="step-actions">
-                                    <button class="btn secondary" onclick="resetStep('d2')">Réinitialiser</button>
-                                    <button class="btn" onclick="markStepCompleted('d2')">Marquer comme terminé</button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Quoi : Quel est le problème ?</label>
-                                    <textarea placeholder="Décrivez précisément ce qui ne va pas..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Où : Où le problème se produit-il ?</label>
-                                    <textarea placeholder="Ligne, poste, zone, équipement..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Quand : Quand le problème survient-il ?</label>
-                                    <textarea placeholder="Fréquence, horaires, conditions..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Qui : Qui est concerné ?</label>
-                                    <textarea placeholder="Opérateurs, équipes, clients..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Comment : Comment le problème se manifeste-t-il ?</label>
-                                    <textarea placeholder="Symptômes, manifestations..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Combien : Quelle est l'ampleur ?</label>
-                                    <textarea placeholder="Quantité, coût, impact..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Les autres étapes D3-D8 suivront le même modèle -->
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal pour nouveau projet -->
-    <div id="new-project-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Nouveau Projet 8D</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="new-project-title">Titre du projet *</label>
-                <input type="text" id="new-project-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
-            </div>
-            <div class="form-group">
-                <label for="new-project-description">Description</label>
-                <textarea id="new-project-description" placeholder="Description détaillée du problème..."></textarea>
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-                <button class="btn secondary" id="cancel-project-btn">Annuler</button>
-                <button class="btn" id="create-project-btn">Créer le projet</button>
-            </div>
+    <main class="main-content">
+      <header class="main-header">
+        <div class="project-info" id="project-header">
+          <h1>Tableau de bord</h1>
+          <div class="project-meta"></div>
         </div>
+        <div class="actions">
+          <button class="btn icon secondary" id="toggle-sidebar" aria-label="Réduire/étendre le menu"><span class="material-symbols-outlined">menu</span></button>
+          <button class="btn secondary" id="export-btn" title="Exporter les projets (JSON)"><span class="material-symbols-outlined">file_download</span>Exporter</button>
+          <input type="file" id="import-file" accept="application/json" style="display:none"/>
+          <button class="btn secondary" id="import-btn" title="Importer des projets (JSON)"><span class="material-symbols-outlined">file_upload</span>Importer</button>
+          <button class="btn" id="pdf-btn" style="display:none;"><span class="material-symbols-outlined">print</span>Imprimer/PDF</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <!-- DASHBOARD -->
+        <div id="dashboard-view" class="view active">
+          <div class="dashboard-header">
+            <h2>Projets 8D en cours</h2>
+            <button class="btn" id="new-project-btn"><span class="material-symbols-outlined">add</span>Nouveau Projet</button>
+          </div>
+
+          <div class="dashboard-stats">
+            <div class="stat-card"><div class="stat-value" id="total-projects">0</div><div class="stat-label">Total Projets</div></div>
+            <div class="stat-card"><div class="stat-value" id="active-projects">0</div><div class="stat-label">En Cours</div></div>
+            <div class="stat-card"><div class="stat-value" id="completed-projects">0</div><div class="stat-label">Terminés</div></div>
+            <div class="stat-card"><div class="stat-value" id="avg-completion">0%</div><div class="stat-label">Avancement Moyen</div></div>
+          </div>
+
+          <div id="project-list" class="dashboard-grid"></div>
+        </div>
+
+        <!-- PROJECT VIEW -->
+        <div id="project-view" class="view">
+          <div class="breadcrumb">
+            <a id="breadcrumb-dashboard">Tableau de bord</a>
+            <span class="material-symbols-outlined">chevron_right</span>
+            <span id="breadcrumb-project">Projet</span>
+          </div>
+
+          <!-- D0 -->
+          <div id="d0" class="card">
+            <div class="card-content">
+              <div class="step-header">
+                <h2>D0 : Planifier</h2>
+                <div class="step-actions">
+                  <button class="btn secondary" data-reset="d0">Réinitialiser</button>
+                  <button class="btn" data-complete="d0">Marquer comme terminé</button>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="problem-title">Titre du problème *</label>
+                  <input type="text" id="problem-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
+                </div>
+                <div class="form-group">
+                  <label for="problem-severity">Sévérité</label>
+                  <select id="problem-severity">
+                    <option value="low">Faible</option>
+                    <option value="medium">Moyenne</option>
+                    <option value="high">Élevée</option>
+                    <option value="critical">Critique</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="reported-by">Signalé par</label>
+                  <input type="text" id="reported-by" placeholder="Nom du rapporteur">
+                </div>
+                <div class="form-group">
+                  <label for="report-date">Date de signalement</label>
+                  <input type="date" id="report-date">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="problem-description">Description du problème *</label>
+                <textarea id="problem-description" placeholder="Décrivez le problème en détail..." required></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- D1 -->
+          <div id="d1" class="card">
+            <div class="card-content">
+              <div class="step-header">
+                <h2>D1 : Former le groupe de travail</h2>
+                <div class="step-actions">
+                  <button class="btn secondary" data-reset="d1">Réinitialiser</button>
+                  <button class="btn" data-complete="d1">Marquer comme terminé</button>
+                </div>
+              </div>
+
+              <div class="table-container">
+                <table class="dynamic-table" id="team-table">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Rôle</th>
+                      <th>Département</th>
+                      <th>Email</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <button class="btn secondary add-row-btn" id="add-team-row"><span class="material-symbols-outlined">add</span>Ajouter un membre</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- D2 -->
+          <div id="d2" class="card">
+            <div class="card-content">
+              <div class="step-header">
+                <h2>D2 : Décrire le problème</h2>
+                <div class="step-actions">
+                  <button class="btn secondary" data-reset="d2">Réinitialiser</button>
+                  <button class="btn" data-complete="d2">Marquer comme terminé</button>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group"><label for="d2-what">Quoi ?</label><textarea id="d2-what" placeholder="Décrivez précisément ce qui ne va pas..."></textarea></div>
+                <div class="form-group"><label for="d2-where">Où ?</label><textarea id="d2-where" placeholder="Ligne, poste, zone, équipement..."></textarea></div>
+                <div class="form-group"><label for="d2-when">Quand ?</label><textarea id="d2-when" placeholder="Fréquence, horaires, conditions..."></textarea></div>
+                <div class="form-group"><label for="d2-who">Qui ?</label><textarea id="d2-who" placeholder="Opérateurs, équipes, clients..."></textarea></div>
+                <div class="form-group"><label for="d2-how">Comment ?</label><textarea id="d2-how" placeholder="Symptômes, manifestations..."></textarea></div>
+                <div class="form-group"><label for="d2-howmuch">Combien ?</label><textarea id="d2-howmuch" placeholder="Quantité, coût, impact..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- D3-D8 (squelette léger pour rester concis) -->
+          <div id="d3" class="card"><div class="card-content"><div class="step-header"><h2>D3 : Actions de confinement</h2><div class="step-actions"><button class="btn secondary" data-reset="d3">Réinitialiser</button><button class="btn" data-complete="d3">Marquer comme terminé</button></div></div><div class="form-group"><label for="d3-text">Mesures immédiates</label><textarea id="d3-text" placeholder="Actions temporaires pour sécuriser le client et le process..."></textarea></div></div></div>
+          <div id="d4" class="card"><div class="card-content"><div class="step-header"><h2>D4 : Analyse des causes</h2><div class="step-actions"><button class="btn secondary" data-reset="d4">Réinitialiser</button><button class="btn" data-complete="d4">Marquer comme terminé</button></div></div><div class="form-group"><label for="d4-text">Cause(s) racine(s)</label><textarea id="d4-text" placeholder="5 Pourquoi, Ishikawa (5M), preuves..."></textarea></div></div></div>
+          <div id="d5" class="card"><div class="card-content"><div class="step-header"><h2>D5 : Actions correctives</h2><div class="step-actions"><button class="btn secondary" data-reset="d5">Réinitialiser</button><button class="btn" data-complete="d5">Marquer comme terminé</button></div></div><div class="form-group"><label for="d5-text">Plan d'actions</label><textarea id="d5-text" placeholder="Actions définitives, responsables, délais, risques résiduels..."></textarea></div></div></div>
+          <div id="d6" class="card"><div class="card-content"><div class="step-header"><h2>D6 : Mise en œuvre & Vérification</h2><div class="step-actions"><button class="btn secondary" data-reset="d6">Réinitialiser</button><button class="btn" data-complete="d6">Marquer comme terminé</button></div></div><div class="form-group"><label for="d6-text">Vérification d'efficacité</label><textarea id="d6-text" placeholder="Tests, échantillonnage, critères d'acceptation..."></textarea></div></div></div>
+          <div id="d7" class="card"><div class="card-content"><div class="step-header"><h2>D7 : Prévention de la récurrence</h2><div class="step-actions"><button class="btn secondary" data-reset="d7">Réinitialiser</button><button class="btn" data-complete="d7">Marquer comme terminé</button></div></div><div class="form-group"><label for="d7-text">Standardisation</label><textarea id="d7-text" placeholder="Mise à jour procédures, formation, AMDEC, maîtrise du changement..."></textarea></div></div></div>
+          <div id="d8" class="card"><div class="card-content"><div class="step-header"><h2>D8 : Félicitations & Clôture</h2><div class="step-actions"><button class="btn secondary" data-reset="d8">Réinitialiser</button><button class="btn" data-complete="d8">Marquer comme terminé</button></div></div><div class="form-group"><label for="d8-text">Leçons apprises</label><textarea id="d8-text" placeholder="Reconnaissance de l'équipe, capitalisation, diffusion..."></textarea></div></div></div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal nouveau projet -->
+  <div id="new-project-modal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="new-project-title" aria-modal="true">
+      <div class="modal-header">
+        <h3>Nouveau Projet 8D</h3>
+        <button class="close-modal" aria-label="Fermer">&times;</button>
+      </div>
+      <div class="form-group">
+        <label for="new-project-title">Titre du projet *</label>
+        <input type="text" id="new-project-title" placeholder="Ex: Anomalie sur pièce XF-123" required>
+      </div>
+      <div class="form-group">
+        <label for="new-project-description">Description</label>
+        <textarea id="new-project-description" placeholder="Description détaillée du problème..."></textarea>
+      </div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
+        <button class="btn secondary" id="cancel-project-btn">Annuler</button>
+        <button class="btn" id="create-project-btn">Créer le projet</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Zone de notifications -->
-    <div id="notification-area"></div>
+  <!-- Notifications -->
+  <div id="notification-area"></div>
 
-    <script>
-        // --- DONNÉES DE L'APPLICATION ---
-        let appData = {
-            currentView: 'dashboard',
-            activeProject: null,
-            nextId: 4,
-            projects: [
-                { 
-                    id: 1, 
-                    title: 'Anomalie sur pièce XF-123', 
-                    description: 'Problème de qualité récurrent',
-                    status: 'in-progress', 
-                    createdDate: '2024-01-15',
-                    updatedDate: '2024-01-20',
-                    steps: { d0: 'completed', d1: 'completed', d2: 'in-progress', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
-                },
-                { 
-                    id: 2, 
-                    title: 'Vibration anormale Ligne 3', 
-                    description: 'Vibrations excessives détectées',
-                    status: 'in-progress', 
-                    createdDate: '2024-01-18',
-                    updatedDate: '2024-01-22',
-                    steps: { d0: 'completed', d1: 'in-progress', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
-                },
-                { 
-                    id: 3, 
-                    title: 'Fuite Huile Compresseur C-05', 
-                    description: 'Fuite d\'huile majeure',
-                    status: 'completed', 
-                    createdDate: '2024-01-10',
-                    updatedDate: '2024-01-25',
-                    steps: { d0:'completed', d1:'completed', d2:'completed', d3:'completed', d4:'completed', d5:'completed', d6:'completed', d7:'completed', d8:'completed' }
-                }
-            ]
+  <script>
+    // ===================== DONNÉES & STOCKAGE =====================
+    const STORAGE_KEY = "eightD.projects.v1";
+
+    let appData = {
+      currentView: 'dashboard',
+      activeProject: null,
+      nextId: 4,
+      projects: [
+        {
+          id: 1,
+          title: 'Anomalie sur pièce XF-123',
+          description: 'Problème de qualité récurrent',
+          status: 'in-progress',
+          createdDate: '2024-01-15',
+          updatedDate: '2024-01-20',
+          steps: { d0:'completed', d1:'completed', d2:'in-progress', d3:'', d4:'', d5:'', d6:'', d7:'', d8:'' },
+          d0: { severity:'medium', reportedBy:'', reportDate:'', description:'' },
+          d1: { team:[{name:'', role:'member', dept:'', email:''}] },
+          d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+        },
+        {
+          id: 2,
+          title: 'Vibration anormale Ligne 3',
+          description: 'Vibrations excessives détectées',
+          status: 'in-progress',
+          createdDate: '2024-01-18',
+          updatedDate: '2024-01-22',
+          steps: { d0:'completed', d1:'in-progress', d2:'', d3:'', d4:'', d5:'', d6:'', d7:'', d8:'' },
+          d0: { severity:'high', reportedBy:'', reportDate:'', description:'' },
+          d1: { team:[{name:'', role:'member', dept:'', email:''}] },
+          d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+        },
+        {
+          id: 3,
+          title: 'Fuite Huile Compresseur C-05',
+          description: "Fuite d'huile majeure",
+          status: 'completed',
+          createdDate: '2024-01-10',
+          updatedDate: '2024-01-25',
+          steps: { d0:'completed', d1:'completed', d2:'completed', d3:'completed', d4:'completed', d5:'completed', d6:'completed', d7:'completed', d8:'completed' },
+          d0: { severity:'critical', reportedBy:'', reportDate:'', description:'' },
+          d1: { team:[{name:'', role:'member', dept:'', email:''}] },
+          d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+        }
+      ]
+    };
+
+    function saveToStorage(){
+      try{
+        const data = JSON.stringify({ ...appData, activeProject: appData.activeProject ? appData.activeProject.id : null });
+        localStorage.setItem(STORAGE_KEY, data);
+      }catch(e){ console.warn("Storage save error", e); }
+    }
+    function loadFromStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const parsed = JSON.parse(raw);
+        // Rewire activeProject by id if needed
+        const activeId = parsed.activeProject;
+        delete parsed.activeProject;
+        appData = parsed;
+        if(activeId){
+          const p = getProject(activeId);
+          if(p) appData.activeProject = p;
+        }
+      }catch(e){ console.warn("Storage load error", e); }
+    }
+
+    // ===================== UTILITAIRES =====================
+    function getProject(id){ return appData.projects.find(p => p.id === parseInt(id)); }
+    function today(){ return new Date().toISOString().slice(0,10); }
+
+    function calculateProgress(project){
+      const steps = Object.values(project.steps);
+      const completed = steps.filter(s => s === 'completed').length;
+      return Math.round((completed / steps.length) * 100);
+    }
+
+    function showNotification(message, type='info'){
+      const el = document.createElement('div');
+      el.className = `notification ${type}`;
+      el.innerHTML = `<div style="display:flex;align-items:center;gap:.5rem;"><span class="material-symbols-outlined">${type==='success'?'check_circle':type==='error'?'error':'info'}</span>${message}</div>`;
+      document.getElementById('notification-area').appendChild(el);
+      setTimeout(()=>el.classList.add('show'), 50);
+      setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 250); }, 2500);
+    }
+
+    function updateProjectHeader(){
+      const p = appData.activeProject;
+      if(!p) return;
+      const progress = calculateProgress(p);
+      document.getElementById('project-header').innerHTML = `
+        <div>
+          <h1>${p.title}</h1>
+          <div class="project-meta">
+            Projet #${String(p.id).padStart(3,'0')} • Avancement: ${progress}% • Statut: ${p.status==='in-progress'?'En cours':p.status==='completed'?'Terminé':'Planifié'}
+          </div>
+        </div>`;
+      document.getElementById('breadcrumb-project').textContent = p.title || 'Projet';
+    }
+
+    // ===================== RENDU DASHBOARD =====================
+    function renderStats(){
+      const total = appData.projects.length;
+      const active = appData.projects.filter(p => p.status === 'in-progress').length;
+      const completed = appData.projects.filter(p => p.status === 'completed').length;
+      const avg = total>0 ? Math.round(appData.projects.reduce((s,p)=>s+calculateProgress(p),0)/total) : 0;
+      document.getElementById('total-projects').textContent = total;
+      document.getElementById('active-projects').textContent = active;
+      document.getElementById('completed-projects').textContent = completed;
+      document.getElementById('avg-completion').textContent = avg + '%';
+    }
+    function renderProjects(){
+      const container = document.getElementById('project-list');
+      container.innerHTML = '';
+      appData.projects.forEach(project => {
+        const progress = calculateProgress(project);
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.onclick = () => openProject(project.id);
+        card.innerHTML = `
+          <div class="project-actions">
+            <button class="action-btn" title="Dupliquer" onclick="event.stopPropagation(); duplicateProject(${project.id})">
+              <span class="material-symbols-outlined">content_copy</span>
+            </button>
+            <button class="action-btn" title="Supprimer" onclick="event.stopPropagation(); deleteProject(${project.id})">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+          <div class="project-id">Projet #${String(project.id).padStart(3,'0')}</div>
+          <h3>${project.title || '(Sans titre)'}</h3>
+          <span class="status ${project.status}">${project.status==='in-progress'?'En cours':project.status==='completed'?'Terminé':'Planifié'}</span>
+          <div class="project-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.35rem"><span style="font-size:.85rem;color:var(--text-light)">Avancement</span><span style="font-size:.85rem;font-weight:700">${progress}%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+          </div>
+          <div class="project-meta"><span>Créé le ${new Date(project.createdDate).toLocaleDateString('fr-FR')}</span><span>Mis à jour le ${new Date(project.updatedDate).toLocaleDateString('fr-FR')}</span></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+    function renderDashboard(){ renderStats(); renderProjects(); }
+
+    // ===================== NAVIGATION =====================
+    function showDashboard(){
+      appData.currentView = 'dashboard';
+      document.getElementById('dashboard-view').classList.add('active');
+      document.getElementById('project-view').classList.remove('active');
+      document.querySelectorAll('.nav-item a').forEach(a=>a.classList.remove('active'));
+      document.getElementById('dashboard-link').classList.add('active');
+      document.getElementById('project-header').innerHTML = `<div><h1>Tableau de bord</h1><div class="project-meta"></div></div>`;
+      document.getElementById('pdf-btn').style.display = 'none';
+      renderDashboard();
+      saveToStorage();
+    }
+
+    function openProject(projectId){
+      const project = getProject(projectId);
+      if(!project) return;
+      appData.currentView = 'project';
+      appData.activeProject = project;
+
+      document.getElementById('dashboard-view').classList.remove('active');
+      document.getElementById('project-view').classList.add('active');
+      updateProjectHeader();
+      document.getElementById('pdf-btn').style.display = 'inline-flex';
+
+      // Update sidebar statuses
+      updateStepNavigation(project);
+      document.querySelectorAll('.nav-item a').forEach(a=>a.classList.remove('active'));
+
+      // Hydrate forms
+      hydrateProjectForm(project);
+      hydrateTeamTable(project.d1?.team || []);
+      hydrateTextareas(project);
+
+      saveToStorage();
+    }
+
+    function updateStepNavigation(project){
+      document.querySelectorAll('.step-status').forEach(el=>{ el.textContent=''; el.className='material-symbols-outlined step-status'; });
+      Object.entries(project.steps).forEach(([step,status])=>{
+        const statusEl = document.querySelector(`a[data-step="${step}"] .step-status`);
+        if(statusEl){
+          if(status==='completed'){ statusEl.textContent='check_circle'; statusEl.classList.add('completed'); }
+          else if(status==='in-progress'){ statusEl.textContent='schedule'; statusEl.classList.add('in-progress'); }
+        }
+      });
+    }
+
+    // ===================== GESTION PROJETS =====================
+    function createNewProject(){
+      document.getElementById('new-project-modal').classList.add('show');
+      setTimeout(()=>document.getElementById('new-project-title').focus(), 50);
+    }
+    function closeModal(){
+      document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));
+      document.getElementById('new-project-title').value='';
+      document.getElementById('new-project-description').value='';
+    }
+    function createProject(){
+      const title = document.getElementById('new-project-title').value.trim();
+      const description = document.getElementById('new-project-description').value.trim();
+      if(!title){ showNotification('Le titre est obligatoire','error'); return; }
+
+      const newProject = {
+        id: appData.nextId++,
+        title, description,
+        status:'planned',
+        createdDate: today(),
+        updatedDate: today(),
+        steps:{ d0:'', d1:'', d2:'', d3:'', d4:'', d5:'', d6:'', d7:'', d8:'' },
+        d0:{ severity:'medium', reportedBy:'', reportDate:'', description:'' },
+        d1:{ team:[{name:'', role:'member', dept:'', email:''}] },
+        d2:{ what:'', where:'', when:'', who:'', how:'', howmuch:'' },
+        d3:{ text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+      };
+      appData.projects.unshift(newProject);
+      closeModal();
+      showNotification('Projet créé avec succès','success');
+      renderDashboard();
+      setTimeout(()=>openProject(newProject.id), 250);
+      saveToStorage();
+    }
+
+    function duplicateProject(projectId){
+      const original = getProject(projectId);
+      if(!original) return;
+      const copy = JSON.parse(JSON.stringify(original));
+      copy.id = appData.nextId++;
+      copy.title = original.title + ' (Copie)';
+      copy.status = 'planned';
+      Object.keys(copy.steps).forEach(k=>copy.steps[k]='');
+      copy.createdDate = today();
+      copy.updatedDate = today();
+      appData.projects.unshift(copy);
+      showNotification('Projet dupliqué','success');
+      renderDashboard();
+      saveToStorage();
+    }
+
+    function deleteProject(projectId){
+      if(!confirm('Supprimer ce projet ?')) return;
+      appData.projects = appData.projects.filter(p => p.id !== projectId);
+      if(appData.activeProject && appData.activeProject.id === projectId){
+        appData.activeProject = null;
+        showDashboard();
+      }else{
+        renderDashboard();
+      }
+      showNotification('Projet supprimé','info');
+      saveToStorage();
+    }
+
+    // ===================== FORMES & ÉTAPES =====================
+    function markStepCompleted(step){
+      if(!appData.activeProject) return;
+      appData.activeProject.steps[step]='completed';
+      appData.activeProject.updatedDate = today();
+      const progress = calculateProgress(appData.activeProject);
+      appData.activeProject.status = progress===100 ? 'completed' : 'in-progress';
+      updateStepNavigation(appData.activeProject);
+      updateProjectHeader();
+      showNotification(`Étape ${step.toUpperCase()} marquée comme terminée`,'success');
+      renderProjects();
+      saveToStorage();
+    }
+    function resetStep(step){
+      if(!appData.activeProject) return;
+      if(!confirm('Réinitialiser cette étape ?')) return;
+      appData.activeProject.steps[step]='';
+      appData.activeProject.updatedDate = today();
+      updateStepNavigation(appData.activeProject);
+      updateProjectHeader();
+      renderProjects();
+      showNotification(`Étape ${step.toUpperCase()} réinitialisée`,'info');
+      saveToStorage();
+    }
+
+    // D0 mapping
+    function hydrateProjectForm(p){
+      document.getElementById('problem-title').value = p.title || '';
+      document.getElementById('problem-severity').value = p.d0?.severity || 'medium';
+      document.getElementById('reported-by').value = p.d0?.reportedBy || '';
+      document.getElementById('report-date').value = p.d0?.reportDate || '';
+      document.getElementById('problem-description').value = p.d0?.description || '';
+    }
+    function readD0FromForm(){
+      if(!appData.activeProject) return;
+      const p = appData.activeProject;
+      p.title = document.getElementById('problem-title').value.trim();
+      p.d0.severity = document.getElementById('problem-severity').value;
+      p.d0.reportedBy = document.getElementById('reported-by').value.trim();
+      p.d0.reportDate = document.getElementById('report-date').value;
+      p.d0.description = document.getElementById('problem-description').value.trim();
+      p.updatedDate = today();
+
+      // In progress if at least title or description set
+      if((p.title && p.d0.description) && p.steps.d0!=='completed'){ p.steps.d0='in-progress'; }
+      updateProjectHeader();
+      updateStepNavigation(p);
+      renderProjects();
+      saveToStorage();
+    }
+
+    // D1 team
+    function hydrateTeamTable(team){
+      const tbody = document.querySelector('#team-table tbody');
+      tbody.innerHTML = '';
+      const data = team && team.length ? team : [{name:'', role:'member', dept:'', email:''}];
+      data.forEach((m,idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" data-field="name" value="${m.name||''}" placeholder="Nom complet"></td>
+          <td>
+            <select data-field="role">
+              <option value="member"${m.role==='member'?' selected':''}>Membre</option>
+              <option value="leader"${m.role==='leader'?' selected':''}>Leader</option>
+              <option value="expert"${m.role==='expert'?' selected':''}>Expert</option>
+            </select>
+          </td>
+          <td><input type="text" data-field="dept" value="${m.dept||''}" placeholder="Département"></td>
+          <td><input type="email" data-field="email" value="${m.email||''}" placeholder="Email"></td>
+          <td><button class="remove-row" title="Supprimer" onclick="removeTableRow(this)">×</button></td>`;
+        tbody.appendChild(tr);
+      });
+      evaluateD1Status();
+    }
+    function getTeamFromTable(){
+      const rows = Array.from(document.querySelectorAll('#team-table tbody tr'));
+      return rows.map(r=>{
+        return {
+          name: r.querySelector('input[data-field="name"]').value.trim(),
+          role: r.querySelector('select[data-field="role"]').value,
+          dept: r.querySelector('input[data-field="dept"]').value.trim(),
+          email: r.querySelector('input[data-field="email"]').value.trim(),
         };
+      });
+    }
+    function addTeamRow(){
+      const tbody = document.querySelector('#team-table tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" data-field="name" placeholder="Nom complet"></td>
+        <td>
+          <select data-field="role">
+            <option value="member">Membre</option>
+            <option value="leader">Leader</option>
+            <option value="expert">Expert</option>
+          </select>
+        </td>
+        <td><input type="text" data-field="dept" placeholder="Département"></td>
+        <td><input type="email" data-field="email" placeholder="Email"></td>
+        <td><button class="remove-row" title="Supprimer" onclick="removeTableRow(this)">×</button></td>`;
+      tbody.appendChild(tr);
+      syncTeamToProject();
+      showNotification('Membre ajouté','success');
+    }
+    function removeTableRow(btn){
+      const tr = btn.closest('tr');
+      if(!tr) return;
+      tr.remove();
+      syncTeamToProject();
+      showNotification('Membre supprimé','info');
+    }
+    function syncTeamToProject(){
+      if(!appData.activeProject) return;
+      const team = getTeamFromTable();
+      appData.activeProject.d1.team = team;
+      appData.activeProject.updatedDate = today();
+      evaluateD1Status();
+      renderProjects();
+      saveToStorage();
+    }
+    function evaluateD1Status(){
+      if(!appData.activeProject) return;
+      const team = getTeamFromTable();
+      // in-progress if at least one non-empty name or email
+      const hasAny = team.some(m => m.name || m.email);
+      if(hasAny && appData.activeProject.steps.d1!=='completed'){ appData.activeProject.steps.d1='in-progress'; }
+      updateStepNavigation(appData.activeProject);
+    }
 
-        // --- FONCTIONS UTILITAIRES ---
-        function getProject(id) {
-            return appData.projects.find(p => p.id === parseInt(id));
+    // Generic textareas D2-D8
+    function hydrateTextareas(p){
+      const map = {
+        'd2-what': p.d2?.what || '', 'd2-where': p.d2?.where || '', 'd2-when': p.d2?.when || '',
+        'd2-who': p.d2?.who || '', 'd2-how': p.d2?.how || '', 'd2-howmuch': p.d2?.howmuch || '',
+        'd3-text': p.d3?.text || '', 'd4-text': p.d4?.text || '', 'd5-text': p.d5?.text || '',
+        'd6-text': p.d6?.text || '', 'd7-text': p.d7?.text || '', 'd8-text': p.d8?.text || ''
+      };
+      Object.entries(map).forEach(([id,val])=>{ const el = document.getElementById(id); if(el) el.value = val; });
+    }
+    function syncTextareasToProject(e){
+      if(!appData.activeProject) return;
+      const id = e.target.id;
+      const val = e.target.value;
+      const p = appData.activeProject;
+      if(id.startsWith('d2-')){
+        const k = id.split('-')[1]; p.d2[k] = val; if(p.steps.d2!=='completed') p.steps.d2='in-progress';
+      }else if(id==='d3-text'){ p.d3.text = val; if(p.steps.d3!=='completed') p.steps.d3='in-progress'; }
+      else if(id==='d4-text'){ p.d4.text = val; if(p.steps.d4!=='completed') p.steps.d4='in-progress'; }
+      else if(id==='d5-text'){ p.d5.text = val; if(p.steps.d5!=='completed') p.steps.d5='in-progress'; }
+      else if(id==='d6-text'){ p.d6.text = val; if(p.steps.d6!=='completed') p.steps.d6='in-progress'; }
+      else if(id==='d7-text'){ p.d7.text = val; if(p.steps.d7!=='completed') p.steps.d7='in-progress'; }
+      else if(id==='d8-text'){ p.d8.text = val; if(p.steps.d8!=='completed') p.steps.d8='in-progress'; }
+      p.updatedDate = today();
+      updateStepNavigation(p); updateProjectHeader(); renderProjects(); saveToStorage();
+    }
+
+    // ===================== EXPORT / IMPORT =====================
+    function exportJSON(){
+      const dataStr = JSON.stringify(appData.projects, null, 2);
+      const blob = new Blob([dataStr], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `8D-projects-${today()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+    }
+    function importJSON(file){
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        try{
+          const projects = JSON.parse(e.target.result);
+          if(!Array.isArray(projects)) throw new Error('Format inattendu');
+          // Recompute nextId
+          const maxId = projects.reduce((m,p)=>Math.max(m, p.id||0), 0);
+          appData.projects = projects;
+          appData.nextId = maxId + 1;
+          appData.activeProject = null;
+          showDashboard();
+          showNotification('Import réussi','success');
+          saveToStorage();
+        }catch(err){
+          console.error(err);
+          showNotification('Import impossible : fichier invalide','error');
         }
+      };
+      reader.readAsText(file);
+    }
 
-        function calculateProgress(project) {
-            const steps = Object.values(project.steps);
-            const completed = steps.filter(s => s === 'completed').length;
-            return Math.round((completed / steps.length) * 100);
-        }
+    // ===================== ÉVÉNEMENTS =====================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Charger stockage
+      loadFromStorage();
+      renderDashboard();
 
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span>
-                    ${message}
-                </div>
-            `;
-            
-            document.getElementById('notification-area').appendChild(notification);
-            setTimeout(() => notification.classList.add('show'), 100);
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
+      // Boutons header
+      document.getElementById('toggle-sidebar').onclick = ()=>document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('export-btn').onclick = exportJSON;
+      document.getElementById('import-btn').onclick = ()=>document.getElementById('import-file').click();
+      document.getElementById('import-file').addEventListener('change', e=>{
+        if(e.target.files && e.target.files[0]) importJSON(e.target.files[0]);
+        e.target.value = '';
+      });
+      document.getElementById('pdf-btn').onclick = ()=>window.print();
 
-        // --- RENDU DES STATISTIQUES ---
-        function renderStats() {
-            const total = appData.projects.length;
-            const active = appData.projects.filter(p => p.status === 'in-progress').length;
-            const completed = appData.projects.filter(p => p.status === 'completed').length;
-            const avgProgress = total > 0 ? Math.round(appData.projects.reduce((sum, p) => sum + calculateProgress(p), 0) / total) : 0;
+      // Dashboard & breadcrumb
+      document.getElementById('new-project-btn').onclick = createNewProject;
+      document.getElementById('dashboard-link').onclick = showDashboard;
+      document.getElementById('breadcrumb-dashboard').onclick = showDashboard;
 
-            document.getElementById('total-projects').textContent = total;
-            document.getElementById('active-projects').textContent = active;
-            document.getElementById('completed-projects').textContent = completed;
-            document.getElementById('avg-completion').textContent = avgProgress + '%';
-        }
+      // Modal
+      document.getElementById('create-project-btn').onclick = createProject;
+      document.getElementById('cancel-project-btn').onclick = closeModal;
+      document.querySelector('.close-modal').onclick = closeModal;
+      document.getElementById('new-project-modal').onclick = (e)=>{ if(e.target.id==='new-project-modal') closeModal(); };
 
-        // --- RENDU DES PROJETS ---
-        function renderProjects() {
-            const container = document.getElementById('project-list');
-            container.innerHTML = '';
+      // Steps actions (event delegation)
+      document.body.addEventListener('click', (e)=>{
+        const completeBtn = e.target.closest('[data-complete]');
+        const resetBtn = e.target.closest('[data-reset]');
+        if(completeBtn){ markStepCompleted(completeBtn.getAttribute('data-complete')); }
+        if(resetBtn){ resetStep(resetBtn.getAttribute('data-reset')); }
+      });
 
-            appData.projects.forEach(project => {
-                const progress = calculateProgress(project);
-                const card = document.createElement('div');
-                card.className = 'project-card';
-                card.onclick = () => openProject(project.id);
-                
-                card.innerHTML = `
-                    <div class="project-actions">
-                        <button class="action-btn" onclick="event.stopPropagation(); duplicateProject(${project.id})" title="Dupliquer">
-                            <span class="material-symbols-outlined">content_copy</span>
-                        </button>
-                        <button class="action-btn" onclick="event.stopPropagation(); deleteProject(${project.id})" title="Supprimer">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
-                    <div class="project-id">Projet #${project.id.toString().padStart(3, '0')}</div>
-                    <h3>${project.title}</h3>
-                    <span class="status ${project.status}">
-                        ${project.status === 'in-progress' ? 'En cours' : 
-                          project.status === 'completed' ? 'Terminé' : 'Planifié'}
-                    </span>
-                    <div class="project-progress">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.875rem; color: var(--text-light);">Avancement</span>
-                            <span style="font-size: 0.875rem; font-weight: 600;">${progress}%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progress}%"></div>
-                        </div>
-                    </div>
-                    <div class="project-meta">
-                        <span>Créé le ${new Date(project.createdDate).toLocaleDateString('fr-FR')}</span>
-                        <span>Mis à jour le ${new Date(project.updatedDate).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+      // Navigation vers les étapes
+      document.querySelectorAll('a[data-step]').forEach(link=>{
+        link.onclick = function(){
+          if(appData.currentView === 'project'){
+            const step = this.dataset.step;
+            document.getElementById(step)?.scrollIntoView({behavior:'smooth', block:'start'});
+          }
+          document.querySelectorAll('.nav-item a').forEach(a=>a.classList.remove('active'));
+          this.classList.add('active');
+        };
+      });
 
-        // --- RENDU DU DASHBOARD ---
-        function renderDashboard() {
-            renderStats();
-            renderProjects();
-        }
+      // Inputs D0
+      ['problem-title','problem-severity','reported-by','report-date','problem-description'].forEach(id=>{
+        document.getElementById(id).addEventListener('input', readD0FromForm);
+        document.getElementById(id).addEventListener('change', readD0FromForm);
+      });
 
-        // --- NAVIGATION ---
-        function showDashboard() {
-            appData.currentView = 'dashboard';
-            document.getElementById('dashboard-view').classList.add('active');
-            document.getElementById('project-view').classList.remove('active');
-            
-            // Navigation
-            document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
-            document.getElementById('dashboard-link').classList.add('active');
-            
-            // Header
-            document.getElementById('project-header').innerHTML = `
-                <div>
-                    <h1>Tableau de bord</h1>
-                    <div class="project-meta"></div>
-                </div>
-            `;
-            document.getElementById('pdf-btn').style.display = 'none';
-            
-            renderDashboard();
-        }
+      // Table équipe
+      document.getElementById('add-team-row').onclick = addTeamRow;
+      document.querySelector('#team-table tbody').addEventListener('input', syncTeamToProject);
+      document.querySelector('#team-table tbody').addEventListener('change', syncTeamToProject);
 
-        function openProject(projectId) {
-            const project = getProject(projectId);
-            if (!project) return;
-            
-            appData.currentView = 'project';
-            appData.activeProject = project;
-            
-            document.getElementById('dashboard-view').classList.remove('active');
-            document.getElementById('project-view').classList.add('active');
-            
-            // Header
-            const progress = calculateProgress(project);
-            document.getElementById('project-header').innerHTML = `
-                <div>
-                    <h1>${project.title}</h1>
-                    <div class="project-meta">
-                        Projet #${project.id.toString().padStart(3, '0')} • Avancement: ${progress}% • 
-                        Statut: ${project.status === 'in-progress' ? 'En cours' : 
-                                 project.status === 'completed' ? 'Terminé' : 'Planifié'}
-                    </div>
-                </div>
-            `;
-            document.getElementById('breadcrumb-project').textContent = project.title;
-            document.getElementById('pdf-btn').style.display = 'inline-flex';
-            
-            // Navigation sidebar - mettre à jour les statuts
-            updateStepNavigation(project);
-            
-            // Navigation active
-            document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
-        }
+      // Textareas D2-D8
+      ['d2-what','d2-where','d2-when','d2-who','d2-how','d2-howmuch','d3-text','d4-text','d5-text','d6-text','d7-text','d8-text']
+        .forEach(id => document.getElementById(id).addEventListener('input', syncTextareasToProject));
 
-        function updateStepNavigation(project) {
-            document.querySelectorAll('.step-status').forEach(el => {
-                el.textContent = '';
-                el.className = 'material-symbols-outlined step-status';
-            });
+      // Raccourcis
+      document.onkeydown = function(e){
+        if(e.ctrlKey && e.key === 'n'){ e.preventDefault(); createNewProject(); }
+        if(e.key === 'Escape'){ closeModal(); }
+      };
 
-            Object.entries(project.steps).forEach(([step, status]) => {
-                const statusEl = document.querySelector(`a[data-step="${step}"] .step-status`);
-                if (statusEl) {
-                    if (status === 'completed') {
-                        statusEl.textContent = 'check_circle';
-                        statusEl.classList.add('completed');
-                    } else if (status === 'in-progress') {
-                        statusEl.textContent = 'schedule';
-                        statusEl.classList.add('in-progress');
-                    }
-                }
-            });
-        }
+      window.addEventListener('beforeunload', saveToStorage);
+    });
 
-        // --- GESTION DES PROJETS ---
-        function createNewProject() {
-            document.getElementById('new-project-modal').classList.add('show');
-            document.getElementById('new-project-title').focus();
-        }
-
-        function createProject() {
-            const title = document.getElementById('new-project-title').value.trim();
-            const description = document.getElementById('new-project-description').value.trim();
-            
-            if (!title) {
-                showNotification('Le titre est obligatoire', 'error');
-                return;
-            }
-
-            const newProject = {
-                id: appData.nextId++,
-                title: title,
-                description: description,
-                status: 'planned',
-                createdDate: new Date().toISOString().split('T')[0],
-                updatedDate: new Date().toISOString().split('T')[0],
-                steps: { d0: '', d1: '', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
-            };
-
-            appData.projects.unshift(newProject);
-            closeModal();
-            showNotification('Projet créé avec succès', 'success');
-            renderDashboard();
-            
-            // Ouvrir automatiquement le nouveau projet
-            setTimeout(() => openProject(newProject.id), 500);
-        }
-
-        function duplicateProject(projectId) {
-            const original = getProject(projectId);
-            if (!original) return;
-
-            const duplicate = {
-                ...original,
-                id: appData.nextId++,
-                title: original.title + ' (Copie)',
-                createdDate: new Date().toISOString().split('T')[0],
-                updatedDate: new Date().toISOString().split('T')[0],
-                status: 'planned',
-                steps: { d0: '', d1: '', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '' }
-            };
-
-            appData.projects.unshift(duplicate);
-            showNotification('Projet dupliqué avec succès', 'success');
-            renderDashboard();
-        }
-
-        function deleteProject(projectId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-                appData.projects = appData.projects.filter(p => p.id !== projectId);
-                showNotification('Projet supprimé', 'info');
-                renderDashboard();
-            }
-        }
-
-        // --- GESTION DES ÉTAPES ---
-        function markStepCompleted(step) {
-            if (!appData.activeProject) return;
-            
-            appData.activeProject.steps[step] = 'completed';
-            appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
-            
-            // Recalculer le statut du projet
-            const progress = calculateProgress(appData.activeProject);
-            if (progress === 100) {
-                appData.activeProject.status = 'completed';
-            } else if (progress > 0) {
-                appData.activeProject.status = 'in-progress';
-            }
-            
-            updateStepNavigation(appData.activeProject);
-            showNotification(`Étape ${step.toUpperCase()} marquée comme terminée`, 'success');
-            
-            // Mettre à jour l'en-tête du projet
-            const newProgress = calculateProgress(appData.activeProject);
-            document.getElementById('project-header').innerHTML = `
-                <div>
-                    <h1>${appData.activeProject.title}</h1>
-                    <div class="project-meta">
-                        Projet #${appData.activeProject.id.toString().padStart(3, '0')} • Avancement: ${newProgress}% • 
-                        Statut: ${appData.activeProject.status === 'in-progress' ? 'En cours' : 
-                                 appData.activeProject.status === 'completed' ? 'Terminé' : 'Planifié'}
-                    </div>
-                </div>
-            `;
-        }
-
-        function resetStep(step) {
-            if (!appData.activeProject) return;
-            if (!confirm('Êtes-vous sûr de vouloir réinitialiser cette étape ?')) return;
-            
-            appData.activeProject.steps[step] = '';
-            appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
-            
-            updateStepNavigation(appData.activeProject);
-            showNotification(`Étape ${step.toUpperCase()} réinitialisée`, 'info');
-        }
-
-        // --- GESTION DES TABLEAUX ---
-        function addTeamRow() {
-            const tbody = document.querySelector('#team-table tbody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><input type="text" placeholder="Nom complet"></td>
-                <td>
-                    <select>
-                        <option value="member">Membre</option>
-                        <option value="leader">Leader</option>
-                        <option value="expert">Expert</option>
-                    </select>
-                </td>
-                <td><input type="text" placeholder="Département"></td>
-                <td><input type="email" placeholder="Email"></td>
-                <td><button class="remove-row" onclick="removeTableRow(this)">×</button></td>
-            `;
-            tbody.appendChild(newRow);
-        }
-
-        function removeTableRow(button) {
-            button.closest('tr').remove();
-        }
-
-        // --- UTILITAIRES ---
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('show');
-            });
-            // Reset form
-            document.getElementById('new-project-title').value = '';
-            document.getElementById('new-project-description').value = '';
-        }
-
-        function scrollToStep(step) {
-            const element = document.getElementById(step);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        // --- ÉVÉNEMENTS ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Bouton nouveau projet
-            document.getElementById('new-project-btn').onclick = createNewProject;
-            document.getElementById('create-project-btn').onclick = createProject;
-            document.getElementById('cancel-project-btn').onclick = closeModal;
-            
-            // Navigation
-            document.getElementById('dashboard-link').onclick = showDashboard;
-            document.getElementById('breadcrumb-dashboard').onclick = showDashboard;
-            
-            // Navigation vers les étapes
-            document.querySelectorAll('a[data-step]').forEach(link => {
-                link.onclick = function() {
-                    if (appData.currentView === 'project') {
-                        scrollToStep(this.dataset.step);
-                    }
-                    
-                    // Navigation active
-                    document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
-                    this.classList.add('active');
-                };
-            });
-            
-            // Sidebar toggle
-            document.getElementById('toggle-sidebar').onclick = function() {
-                document.getElementById('sidebar').classList.toggle('collapsed');
-            };
-            
-            // Fermeture modale
-            document.querySelector('.close-modal').onclick = closeModal;
-            
-            // Fermeture modale en cliquant à l'extérieur
-            document.getElementById('new-project-modal').onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            // Génération PDF (placeholder)
-            document.getElementById('pdf-btn').onclick = function() {
-                showNotification('Génération du PDF en cours...', 'info');
-                setTimeout(() => showNotification('PDF généré avec succès', 'success'), 2000);
-            };
-            
-            // Raccourcis clavier
-            document.onkeydown = function(e) {
-                if (e.ctrlKey && e.key === 'n') {
-                    e.preventDefault();
-                    createNewProject();
-                }
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
-            };
-            
-            // Auto-save sur les champs de formulaire
-            document.addEventListener('input', function(e) {
-                if (e.target.matches('#problem-title') && appData.activeProject) {
-                    appData.activeProject.title = e.target.value;
-                    appData.activeProject.updatedDate = new Date().toISOString().split('T')[0];
-                    
-                    // Mettre à jour l'affichage
-                    document.getElementById('breadcrumb-project').textContent = e.target.value;
-                    const headerTitle = document.querySelector('#project-header h1');
-                    if (headerTitle) headerTitle.textContent = e.target.value;
-                }
-            });
-            
-            // Rendu initial
-            renderDashboard();
-        });
-
-        // Exposer les fonctions globalement pour les onclick
-        window.createNewProject = createNewProject;
-        window.createProject = createProject;
-        window.duplicateProject = duplicateProject;
-        window.deleteProject = deleteProject;
-        window.openProject = openProject;
-        window.markStepCompleted = markStepCompleted;
-        window.resetStep = resetStep;
-        window.addTeamRow = addTeamRow;
-        window.removeTableRow = removeTableRow;
-        window.closeModal = closeModal;
-    </script>
+    // Exposer
+    window.createNewProject = createNewProject;
+    window.duplicateProject = duplicateProject;
+    window.deleteProject = deleteProject;
+    window.openProject = openProject;
+    window.addTeamRow = addTeamRow;
+    window.removeTableRow = removeTableRow;
+  </script>
 </body>
 </html>
