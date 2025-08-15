@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>8D-Master — version corrigée</title>
-
+  <title>8D-Master — version avec fichiers joints</title>
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-
   <style>
     :root{
       --primary-color:#4f46e5;--primary-light:#e0e7ff;--text-color:#111827;--text-light:#4b5563;
@@ -21,7 +19,6 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html{font-size:16px}
     body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--background-color);color:var(--text-color);line-height:1.5;-webkit-font-smoothing:antialiased}
-
     /* Layout */
     .app-container{display:flex;height:100vh;overflow:hidden}
     .sidebar{width:280px;background:var(--card-bg);border-right:1px solid var(--border-color);display:flex;flex-direction:column;transition:width .25s ease}
@@ -35,12 +32,10 @@
     .nav-item .step-status{margin-left:auto;font-size:1.2rem;transition:color .2s ease}
     .step-status.completed{color:var(--success-color)}
     .step-status.in-progress{color:var(--warning-color)}
-
     /* Hide text when collapsed */
     .sidebar.collapsed .nav-text,
     .sidebar.collapsed .step-status{display:none}
     .sidebar.collapsed .nav-item a{justify-content:center}
-
     .main-content{flex:1;display:flex;flex-direction:column;min-width:0}
     .main-header{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1.25rem;background:rgba(255,255,255,.95);border-bottom:1px solid var(--border-color);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
     .project-info h1{font-size:1.1rem;font-weight:600}
@@ -53,12 +48,10 @@
     .btn.danger{background:var(--error-color)}
     .btn.danger:hover{background:#b91c1c}
     .btn.icon{padding:.5rem;width:38px;justify-content:center}
-
     .workspace{padding:1rem 1.25rem;overflow:auto}
     .view{display:none}
     .view.active{display:block;animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
     /* Dashboard */
     .dashboard-header{display:flex;justify-content:space-between;align-items:center;margin:0 0 1rem}
     .dashboard-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem}
@@ -82,7 +75,6 @@
     .project-card:hover .project-actions{opacity:1}
     .action-btn{background:none;border:none;cursor:pointer;padding:.25rem;color:var(--text-light);border-radius:.35rem}
     .action-btn:hover{background:var(--background-color);color:var(--text-color)}
-
     /* Project view */
     .card{background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);margin:0 0 1rem}
     .card-content{padding:1rem 1.25rem}
@@ -92,14 +84,12 @@
     .breadcrumb{display:flex;align-items:center;gap:.4rem;margin:.25rem 0 1rem;font-size:.85rem;color:var(--text-light)}
     .breadcrumb a{color:var(--primary-color);text-decoration:none;cursor:pointer}
     .breadcrumb a:hover{text-decoration:underline}
-
     .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem}
     .form-group{margin-bottom:1rem}
     .form-group label{display:block;font-weight:600;margin-bottom:.35rem;font-size:.9rem}
     .form-group input,.form-group textarea,.form-group select{width:100%;padding:.65rem;border:1px solid var(--border-color);border-radius:.5rem;font-size:1rem;transition:border-color .15s}
     .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
     .form-group textarea{min-height:100px;resize:vertical}
-
     /* Tables dynamiques */
     .table-container{overflow-x:auto;margin:.5rem 0}
     table{width:100%;border-collapse:collapse}
@@ -108,7 +98,6 @@
     td input,td select{width:100%;border:none;background:transparent;padding:.35rem}
     td input:focus,td select:focus{outline:none;background:var(--primary-light)}
     .remove-row{background:var(--error-color);color:#fff;border:none;border-radius:.35rem;padding:.2rem .45rem;cursor:pointer}
-
     /* Modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000}
     .modal.show{display:flex;align-items:center;justify-content:center}
@@ -116,7 +105,6 @@
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
     .modal-header h3{font-size:1.1rem;font-weight:800}
     .close-modal{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-light)}
-
     /* Notifications */
     .notification{position:fixed;top:1rem;right:1rem;background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--card-shadow);padding:.8rem 1rem;z-index:1100;transform:translateX(400px);transition:transform .25s ease;max-width:320px}
     .notification.show{transform:translateX(0)}
@@ -124,7 +112,22 @@
     .notification.error{border-left:4px solid var(--error-color)}
     .notification.warning{border-left:4px solid var(--warning-color)}
     .notification.info{border-left:4px solid var(--info-color)}
-
+    /* Files section */
+    .files-section { margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+    .files-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+    .files-header h3 { font-size: 1.1rem; font-weight: 600; }
+    .file-list { list-style: none; margin: 0; padding: 0; }
+    .file-item { display: flex; align-items: center; padding: .5rem; border-radius: .35rem; background: var(--background-color); margin-bottom: .5rem; }
+    .file-item:last-child { margin-bottom: 0; }
+    .file-icon { margin-right: .75rem; color: var(--primary-color); }
+    .file-info { flex-grow: 1; }
+    .file-name { font-weight: 500; font-size: .95rem; word-break: break-all; }
+    .file-meta { font-size: .8rem; color: var(--text-light); }
+    .file-actions { display: flex; gap: .25rem; }
+    .file-action-btn { background: none; border: none; cursor: pointer; padding: .25rem; border-radius: .25rem; color: var(--text-light); }
+    .file-action-btn:hover { background: var(--card-bg); color: var(--text-color); }
+    .file-input { margin-top: .5rem; }
+    .file-input input[type="file"] { width: 100%; margin-top: .25rem; }
     /* Responsive */
     @media (max-width: 768px){
       .sidebar{width:68px}
@@ -137,10 +140,9 @@
       .dashboard-grid{grid-template-columns:1fr}
       .form-grid{grid-template-columns:1fr}
     }
-
     /* Print */
     @media print{
-      .sidebar,.main-header,.breadcrumb,#dashboard-view,.project-actions,.notification{display:none !important}
+      .sidebar,.main-header,.breadcrumb,#dashboard-view,.project-actions,.notification,.file-actions {display:none !important}
       body{background:#fff}
       .workspace{padding:0}
       .card{box-shadow:none;border:1px solid #e5e7eb;page-break-inside:avoid}
@@ -173,7 +175,6 @@
         <li class="nav-item"><a data-step="d8" role="button"><span class="material-symbols-outlined nav-icon">celebration</span><span class="nav-text">D8: Féliciter</span><span class="material-symbols-outlined step-status"></span></a></li>
       </ul>
     </nav>
-
     <main class="main-content">
       <header class="main-header">
         <div class="project-info" id="project-header">
@@ -188,7 +189,6 @@
           <button class="btn" id="pdf-btn" style="display:none;"><span class="material-symbols-outlined">print</span>Imprimer/PDF</button>
         </div>
       </header>
-
       <div class="workspace">
         <!-- DASHBOARD -->
         <div id="dashboard-view" class="view active">
@@ -196,17 +196,14 @@
             <h2>Projets 8D en cours</h2>
             <button class="btn" id="new-project-btn"><span class="material-symbols-outlined">add</span>Nouveau Projet</button>
           </div>
-
           <div class="dashboard-stats">
             <div class="stat-card"><div class="stat-value" id="total-projects">0</div><div class="stat-label">Total Projets</div></div>
             <div class="stat-card"><div class="stat-value" id="active-projects">0</div><div class="stat-label">En Cours</div></div>
             <div class="stat-card"><div class="stat-value" id="completed-projects">0</div><div class="stat-label">Terminés</div></div>
             <div class="stat-card"><div class="stat-value" id="avg-completion">0%</div><div class="stat-label">Avancement Moyen</div></div>
           </div>
-
           <div id="project-list" class="dashboard-grid"></div>
         </div>
-
         <!-- PROJECT VIEW -->
         <div id="project-view" class="view">
           <div class="breadcrumb">
@@ -214,7 +211,6 @@
             <span class="material-symbols-outlined">chevron_right</span>
             <span id="breadcrumb-project">Projet</span>
           </div>
-
           <!-- D0 -->
           <div id="d0" class="card">
             <div class="card-content">
@@ -225,7 +221,6 @@
                   <button class="btn" data-complete="d0">Marquer comme terminé</button>
                 </div>
               </div>
-
               <div class="form-grid">
                 <div class="form-group">
                   <label for="problem-title">Titre du problème *</label>
@@ -249,14 +244,26 @@
                   <input type="date" id="report-date">
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="problem-description">Description du problème *</label>
                 <textarea id="problem-description" placeholder="Décrivez le problème en détail..." required></textarea>
               </div>
+              <!-- Fichiers joints pour D0 -->
+              <div class="files-section" id="files-d0">
+                <div class="files-header">
+                  <h3>Fichiers joints</h3>
+                  <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d0')">
+                    <span class="material-symbols-outlined">attach_file</span>
+                  </button>
+                </div>
+                <ul class="file-list" id="file-list-d0"></ul>
+                <div class="file-input" id="file-input-d0" style="display:none;">
+                  <input type="file" id="file-upload-d0" multiple>
+                  <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d0')">Ajouter les fichiers</button>
+                </div>
+              </div>
             </div>
           </div>
-
           <!-- D1 -->
           <div id="d1" class="card">
             <div class="card-content">
@@ -267,7 +274,6 @@
                   <button class="btn" data-complete="d1">Marquer comme terminé</button>
                 </div>
               </div>
-
               <div class="table-container">
                 <table class="dynamic-table" id="team-table">
                   <thead>
@@ -283,9 +289,22 @@
                 </table>
                 <button class="btn secondary add-row-btn" id="add-team-row"><span class="material-symbols-outlined">add</span>Ajouter un membre</button>
               </div>
+              <!-- Fichiers joints pour D1 -->
+              <div class="files-section" id="files-d1">
+                <div class="files-header">
+                  <h3>Fichiers joints</h3>
+                  <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d1')">
+                    <span class="material-symbols-outlined">attach_file</span>
+                  </button>
+                </div>
+                <ul class="file-list" id="file-list-d1"></ul>
+                <div class="file-input" id="file-input-d1" style="display:none;">
+                  <input type="file" id="file-upload-d1" multiple>
+                  <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d1')">Ajouter les fichiers</button>
+                </div>
+              </div>
             </div>
           </div>
-
           <!-- D2 -->
           <div id="d2" class="card">
             <div class="card-content">
@@ -296,7 +315,6 @@
                   <button class="btn" data-complete="d2">Marquer comme terminé</button>
                 </div>
               </div>
-
               <div class="form-grid">
                 <div class="form-group"><label for="d2-what">Quoi ?</label><textarea id="d2-what" placeholder="Décrivez précisément ce qui ne va pas..."></textarea></div>
                 <div class="form-group"><label for="d2-where">Où ?</label><textarea id="d2-where" placeholder="Ligne, poste, zone, équipement..."></textarea></div>
@@ -305,22 +323,123 @@
                 <div class="form-group"><label for="d2-how">Comment ?</label><textarea id="d2-how" placeholder="Symptômes, manifestations..."></textarea></div>
                 <div class="form-group"><label for="d2-howmuch">Combien ?</label><textarea id="d2-howmuch" placeholder="Quantité, coût, impact..."></textarea></div>
               </div>
+               <!-- Fichiers joints pour D2 -->
+               <div class="files-section" id="files-d2">
+                 <div class="files-header">
+                   <h3>Fichiers joints</h3>
+                   <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d2')">
+                     <span class="material-symbols-outlined">attach_file</span>
+                   </button>
+                 </div>
+                 <ul class="file-list" id="file-list-d2"></ul>
+                 <div class="file-input" id="file-input-d2" style="display:none;">
+                   <input type="file" id="file-upload-d2" multiple>
+                   <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d2')">Ajouter les fichiers</button>
+                 </div>
+               </div>
             </div>
           </div>
-
           <!-- D3-D8 (squelette léger pour rester concis) -->
-          <div id="d3" class="card"><div class="card-content"><div class="step-header"><h2>D3 : Actions de confinement</h2><div class="step-actions"><button class="btn secondary" data-reset="d3">Réinitialiser</button><button class="btn" data-complete="d3">Marquer comme terminé</button></div></div><div class="form-group"><label for="d3-text">Mesures immédiates</label><textarea id="d3-text" placeholder="Actions temporaires pour sécuriser le client et le process..."></textarea></div></div></div>
-          <div id="d4" class="card"><div class="card-content"><div class="step-header"><h2>D4 : Analyse des causes</h2><div class="step-actions"><button class="btn secondary" data-reset="d4">Réinitialiser</button><button class="btn" data-complete="d4">Marquer comme terminé</button></div></div><div class="form-group"><label for="d4-text">Cause(s) racine(s)</label><textarea id="d4-text" placeholder="5 Pourquoi, Ishikawa (5M), preuves..."></textarea></div></div></div>
-          <div id="d5" class="card"><div class="card-content"><div class="step-header"><h2>D5 : Actions correctives</h2><div class="step-actions"><button class="btn secondary" data-reset="d5">Réinitialiser</button><button class="btn" data-complete="d5">Marquer comme terminé</button></div></div><div class="form-group"><label for="d5-text">Plan d'actions</label><textarea id="d5-text" placeholder="Actions définitives, responsables, délais, risques résiduels..."></textarea></div></div></div>
-          <div id="d6" class="card"><div class="card-content"><div class="step-header"><h2>D6 : Mise en œuvre & Vérification</h2><div class="step-actions"><button class="btn secondary" data-reset="d6">Réinitialiser</button><button class="btn" data-complete="d6">Marquer comme terminé</button></div></div><div class="form-group"><label for="d6-text">Vérification d'efficacité</label><textarea id="d6-text" placeholder="Tests, échantillonnage, critères d'acceptation..."></textarea></div></div></div>
-          <div id="d7" class="card"><div class="card-content"><div class="step-header"><h2>D7 : Prévention de la récurrence</h2><div class="step-actions"><button class="btn secondary" data-reset="d7">Réinitialiser</button><button class="btn" data-complete="d7">Marquer comme terminé</button></div></div><div class="form-group"><label for="d7-text">Standardisation</label><textarea id="d7-text" placeholder="Mise à jour procédures, formation, AMDEC, maîtrise du changement..."></textarea></div></div></div>
-          <div id="d8" class="card"><div class="card-content"><div class="step-header"><h2>D8 : Félicitations & Clôture</h2><div class="step-actions"><button class="btn secondary" data-reset="d8">Réinitialiser</button><button class="btn" data-complete="d8">Marquer comme terminé</button></div></div><div class="form-group"><label for="d8-text">Leçons apprises</label><textarea id="d8-text" placeholder="Reconnaissance de l'équipe, capitalisation, diffusion..."></textarea></div></div></div>
-
+          <div id="d3" class="card"><div class="card-content"><div class="step-header"><h2>D3 : Actions de confinement</h2><div class="step-actions"><button class="btn secondary" data-reset="d3">Réinitialiser</button><button class="btn" data-complete="d3">Marquer comme terminé</button></div></div><div class="form-group"><label for="d3-text">Mesures immédiates</label><textarea id="d3-text" placeholder="Actions temporaires pour sécuriser le client et le process..."></textarea></div>
+            <!-- Fichiers joints pour D3 -->
+            <div class="files-section" id="files-d3">
+              <div class="files-header">
+                <h3>Fichiers joints</h3>
+                <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d3')">
+                  <span class="material-symbols-outlined">attach_file</span>
+                </button>
+              </div>
+              <ul class="file-list" id="file-list-d3"></ul>
+              <div class="file-input" id="file-input-d3" style="display:none;">
+                <input type="file" id="file-upload-d3" multiple>
+                <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d3')">Ajouter les fichiers</button>
+              </div>
+            </div>
+          </div></div>
+          <div id="d4" class="card"><div class="card-content"><div class="step-header"><h2>D4 : Analyse des causes</h2><div class="step-actions"><button class="btn secondary" data-reset="d4">Réinitialiser</button><button class="btn" data-complete="d4">Marquer comme terminé</button></div></div><div class="form-group"><label for="d4-text">Cause(s) racine(s)</label><textarea id="d4-text" placeholder="5 Pourquoi, Ishikawa (5M), preuves..."></textarea></div>
+            <!-- Fichiers joints pour D4 -->
+            <div class="files-section" id="files-d4">
+              <div class="files-header">
+                <h3>Fichiers joints</h3>
+                <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d4')">
+                  <span class="material-symbols-outlined">attach_file</span>
+                </button>
+              </div>
+              <ul class="file-list" id="file-list-d4"></ul>
+              <div class="file-input" id="file-input-d4" style="display:none;">
+                <input type="file" id="file-upload-d4" multiple>
+                <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d4')">Ajouter les fichiers</button>
+              </div>
+            </div>
+          </div></div>
+          <div id="d5" class="card"><div class="card-content"><div class="step-header"><h2>D5 : Actions correctives</h2><div class="step-actions"><button class="btn secondary" data-reset="d5">Réinitialiser</button><button class="btn" data-complete="d5">Marquer comme terminé</button></div></div><div class="form-group"><label for="d5-text">Plan d'actions</label><textarea id="d5-text" placeholder="Actions définitives, responsables, délais, risques résiduels..."></textarea></div>
+             <!-- Fichiers joints pour D5 -->
+             <div class="files-section" id="files-d5">
+               <div class="files-header">
+                 <h3>Fichiers joints</h3>
+                 <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d5')">
+                   <span class="material-symbols-outlined">attach_file</span>
+                 </button>
+               </div>
+               <ul class="file-list" id="file-list-d5"></ul>
+               <div class="file-input" id="file-input-d5" style="display:none;">
+                 <input type="file" id="file-upload-d5" multiple>
+                 <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d5')">Ajouter les fichiers</button>
+               </div>
+             </div>
+          </div></div>
+          <div id="d6" class="card"><div class="card-content"><div class="step-header"><h2>D6 : Mise en œuvre & Vérification</h2><div class="step-actions"><button class="btn secondary" data-reset="d6">Réinitialiser</button><button class="btn" data-complete="d6">Marquer comme terminé</button></div></div><div class="form-group"><label for="d6-text">Vérification d'efficacité</label><textarea id="d6-text" placeholder="Tests, échantillonnage, critères d'acceptation..."></textarea></div>
+             <!-- Fichiers joints pour D6 -->
+             <div class="files-section" id="files-d6">
+               <div class="files-header">
+                 <h3>Fichiers joints</h3>
+                 <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d6')">
+                   <span class="material-symbols-outlined">attach_file</span>
+                 </button>
+               </div>
+               <ul class="file-list" id="file-list-d6"></ul>
+               <div class="file-input" id="file-input-d6" style="display:none;">
+                 <input type="file" id="file-upload-d6" multiple>
+                 <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d6')">Ajouter les fichiers</button>
+               </div>
+             </div>
+          </div></div>
+          <div id="d7" class="card"><div class="card-content"><div class="step-header"><h2>D7 : Prévention de la récurrence</h2><div class="step-actions"><button class="btn secondary" data-reset="d7">Réinitialiser</button><button class="btn" data-complete="d7">Marquer comme terminé</button></div></div><div class="form-group"><label for="d7-text">Standardisation</label><textarea id="d7-text" placeholder="Mise à jour procédures, formation, AMDEC, maîtrise du changement..."></textarea></div>
+             <!-- Fichiers joints pour D7 -->
+             <div class="files-section" id="files-d7">
+               <div class="files-header">
+                 <h3>Fichiers joints</h3>
+                 <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d7')">
+                   <span class="material-symbols-outlined">attach_file</span>
+                 </button>
+               </div>
+               <ul class="file-list" id="file-list-d7"></ul>
+               <div class="file-input" id="file-input-d7" style="display:none;">
+                 <input type="file" id="file-upload-d7" multiple>
+                 <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d7')">Ajouter les fichiers</button>
+               </div>
+             </div>
+          </div></div>
+          <div id="d8" class="card"><div class="card-content"><div class="step-header"><h2>D8 : Félicitations & Clôture</h2><div class="step-actions"><button class="btn secondary" data-reset="d8">Réinitialiser</button><button class="btn" data-complete="d8">Marquer comme terminé</button></div></div><div class="form-group"><label for="d8-text">Leçons apprises</label><textarea id="d8-text" placeholder="Reconnaissance de l'équipe, capitalisation, diffusion..."></textarea></div>
+             <!-- Fichiers joints pour D8 -->
+             <div class="files-section" id="files-d8">
+               <div class="files-header">
+                 <h3>Fichiers joints</h3>
+                 <button class="btn secondary icon file-action-btn" title="Ajouter un fichier" onclick="addFileInput('d8')">
+                   <span class="material-symbols-outlined">attach_file</span>
+                 </button>
+               </div>
+               <ul class="file-list" id="file-list-d8"></ul>
+               <div class="file-input" id="file-input-d8" style="display:none;">
+                 <input type="file" id="file-upload-d8" multiple>
+                 <button class="btn secondary" style="margin-top: .5rem;" onclick="uploadFiles('d8')">Ajouter les fichiers</button>
+               </div>
+             </div>
+          </div></div>
         </div>
       </div>
     </main>
   </div>
-
   <!-- Modal nouveau projet -->
   <div id="new-project-modal" class="modal" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-labelledby="new-project-title" aria-modal="true">
@@ -342,14 +461,11 @@
       </div>
     </div>
   </div>
-
   <!-- Notifications -->
   <div id="notification-area"></div>
-
   <script>
     // ===================== DONNÉES & STOCKAGE =====================
-    const STORAGE_KEY = "eightD.projects.v1";
-
+    const STORAGE_KEY = "eightD.projects.v2"; // Updated version key
     let appData = {
       currentView: 'dashboard',
       activeProject: null,
@@ -366,7 +482,9 @@
           d0: { severity:'medium', reportedBy:'', reportDate:'', description:'' },
           d1: { team:[{name:'', role:'member', dept:'', email:''}] },
           d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
-          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' },
+          // Initialiser les fichiers joints
+          files: { d0: [], d1: [], d2: [], d3: [], d4: [], d5: [], d6: [], d7: [], d8: [] }
         },
         {
           id: 2,
@@ -379,7 +497,8 @@
           d0: { severity:'high', reportedBy:'', reportDate:'', description:'' },
           d1: { team:[{name:'', role:'member', dept:'', email:''}] },
           d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
-          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' },
+          files: { d0: [], d1: [], d2: [], d3: [], d4: [], d5: [], d6: [], d7: [], d8: [] }
         },
         {
           id: 3,
@@ -392,11 +511,11 @@
           d0: { severity:'critical', reportedBy:'', reportDate:'', description:'' },
           d1: { team:[{name:'', role:'member', dept:'', email:''}] },
           d2: { what:'', where:'', when:'', who:'', how:'', howmuch:'' },
-          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+          d3: { text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' },
+          files: { d0: [], d1: [], d2: [], d3: [], d4: [], d5: [], d6: [], d7: [], d8: [] }
         }
       ]
     };
-
     function saveToStorage(){
       try{
         const data = JSON.stringify({ ...appData, activeProject: appData.activeProject ? appData.activeProject.id : null });
@@ -422,13 +541,11 @@
     // ===================== UTILITAIRES =====================
     function getProject(id){ return appData.projects.find(p => p.id === parseInt(id)); }
     function today(){ return new Date().toISOString().slice(0,10); }
-
     function calculateProgress(project){
       const steps = Object.values(project.steps);
       const completed = steps.filter(s => s === 'completed').length;
       return Math.round((completed / steps.length) * 100);
     }
-
     function showNotification(message, type='info'){
       const el = document.createElement('div');
       el.className = `notification ${type}`;
@@ -437,7 +554,6 @@
       setTimeout(()=>el.classList.add('show'), 50);
       setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 250); }, 2500);
     }
-
     function updateProjectHeader(){
       const p = appData.activeProject;
       if(!p) return;
@@ -450,6 +566,155 @@
           </div>
         </div>`;
       document.getElementById('breadcrumb-project').textContent = p.title || 'Projet';
+    }
+
+    // ===================== GESTION DES FICHIERS =====================
+    function addFileInput(step) {
+        const inputDiv = document.getElementById(`file-input-${step}`);
+        const uploadInput = document.getElementById(`file-upload-${step}`);
+        // Réinitialiser l'input pour permettre de sélectionner le même fichier
+        uploadInput.value = '';
+        inputDiv.style.display = 'block';
+        uploadInput.focus();
+    }
+
+    function uploadFiles(step) {
+        const uploadInput = document.getElementById(`file-upload-${step}`);
+        const files = uploadInput.files;
+        if (!files || files.length === 0) {
+            showNotification('Aucun fichier sélectionné.', 'warning');
+            return;
+        }
+
+        if (!appData.activeProject) return;
+
+        const filePromises = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            const promise = new Promise((resolve, reject) => {
+                reader.onload = function(e) {
+                    const base64 = e.target.result.split(',')[1]; // Extraire la partie base64
+                    resolve({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        base64: base64, // Stocker uniquement la partie base64
+                        id: Date.now() + Math.random() // ID simple pour suppression
+                    });
+                };
+                reader.onerror = function(e) {
+                    console.error("Error reading file:", e);
+                    reject(new Error(`Erreur lors de la lecture du fichier ${file.name}`));
+                };
+                reader.readAsDataURL(file); // Lire comme Data URL
+            });
+            filePromises.push(promise);
+        }
+
+        Promise.all(filePromises)
+            .then(results => {
+                if (!appData.activeProject.files[step]) {
+                    appData.activeProject.files[step] = [];
+                }
+                appData.activeProject.files[step].push(...results);
+                appData.activeProject.updatedDate = today();
+                renderFileList(step); // Mettre à jour l'affichage
+                showNotification(`${results.length} fichier(s) ajouté(s) à l'étape ${step.toUpperCase()}`, 'success');
+                // Masquer l'input après upload
+                document.getElementById(`file-input-${step}`).style.display = 'none';
+                saveToStorage();
+            })
+            .catch(error => {
+                console.error("Error processing files:", error);
+                showNotification(error.message || 'Erreur lors de l\'ajout des fichiers', 'error');
+            });
+    }
+
+    function renderFileList(step) {
+        if (!appData.activeProject || !appData.activeProject.files[step]) return;
+
+        const fileListElement = document.getElementById(`file-list-${step}`);
+        const files = appData.activeProject.files[step];
+        fileListElement.innerHTML = '';
+
+        if (files.length === 0) {
+            fileListElement.innerHTML = '<li class="file-item" style="background: none;"><em>Aucun fichier joint.</em></li>';
+            return;
+        }
+
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            // Déterminer l'icône en fonction du type MIME
+            let icon = 'description'; // Icône par défaut
+            if (file.type.startsWith('image/')) {
+                icon = 'image';
+            } else if (file.type === 'application/pdf') {
+                icon = 'picture_as_pdf';
+            } else if (file.type.startsWith('text/')) {
+                icon = 'text_snippet';
+            } else if (file.type.includes('spreadsheet') || file.type.includes('excel')) {
+                icon = 'table_chart';
+            } else if (file.type.includes('word') || file.type.includes('document')) {
+                icon = 'description';
+            } else if (file.type.includes('zip') || file.type.includes('compressed')) {
+                icon = 'folder_zip';
+            }
+
+            // Formater la taille
+            const sizeInKB = (file.size / 1024).toFixed(1);
+            const formattedDate = new Date(file.lastModified).toLocaleDateString('fr-FR');
+
+            li.innerHTML = `
+                <span class="material-symbols-outlined file-icon">${icon}</span>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-meta">${sizeInKB} Ko • ${formattedDate}</div>
+                </div>
+                <div class="file-actions">
+                    <button class="file-action-btn" title="Télécharger" onclick="downloadFile('${step}', '${file.id}')">
+                        <span class="material-symbols-outlined">download</span>
+                    </button>
+                    <button class="file-action-btn" title="Supprimer" onclick="deleteFile('${step}', '${file.id}')">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            `;
+            fileListElement.appendChild(li);
+        });
+    }
+
+    function downloadFile(step, fileId) {
+        if (!appData.activeProject || !appData.activeProject.files[step]) return;
+
+        const file = appData.activeProject.files[step].find(f => f.id == fileId);
+        if (!file) {
+            showNotification('Fichier non trouvé.', 'error');
+            return;
+        }
+
+        // Reconstruct data URL
+        let mimeType = file.type || 'application/octet-stream';
+        const dataUrl = `data:${mimeType};base64,${file.base64}`;
+
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = file.name; // Nom du fichier pour le téléchargement
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function deleteFile(step, fileId) {
+        if (!appData.activeProject || !appData.activeProject.files[step] || !confirm('Supprimer ce fichier ?')) return;
+
+        appData.activeProject.files[step] = appData.activeProject.files[step].filter(f => f.id != fileId);
+        appData.activeProject.updatedDate = today();
+        renderFileList(step);
+        showNotification('Fichier supprimé', 'info');
+        saveToStorage();
     }
 
     // ===================== RENDU DASHBOARD =====================
@@ -493,7 +758,6 @@
       });
     }
     function renderDashboard(){ renderStats(); renderProjects(); }
-
     // ===================== NAVIGATION =====================
     function showDashboard(){
       appData.currentView = 'dashboard';
@@ -506,30 +770,28 @@
       renderDashboard();
       saveToStorage();
     }
-
     function openProject(projectId){
       const project = getProject(projectId);
       if(!project) return;
       appData.currentView = 'project';
       appData.activeProject = project;
-
       document.getElementById('dashboard-view').classList.remove('active');
       document.getElementById('project-view').classList.add('active');
       updateProjectHeader();
       document.getElementById('pdf-btn').style.display = 'inline-flex';
-
       // Update sidebar statuses
       updateStepNavigation(project);
       document.querySelectorAll('.nav-item a').forEach(a=>a.classList.remove('active'));
-
       // Hydrate forms
       hydrateProjectForm(project);
       hydrateTeamTable(project.d1?.team || []);
       hydrateTextareas(project);
-
+      // Hydrate file lists for all steps
+      for (let step of ['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8']) {
+          renderFileList(step);
+      }
       saveToStorage();
     }
-
     function updateStepNavigation(project){
       document.querySelectorAll('.step-status').forEach(el=>{ el.textContent=''; el.className='material-symbols-outlined step-status'; });
       Object.entries(project.steps).forEach(([step,status])=>{
@@ -540,7 +802,6 @@
         }
       });
     }
-
     // ===================== GESTION PROJETS =====================
     function createNewProject(){
       document.getElementById('new-project-modal').classList.add('show');
@@ -555,7 +816,6 @@
       const title = document.getElementById('new-project-title').value.trim();
       const description = document.getElementById('new-project-description').value.trim();
       if(!title){ showNotification('Le titre est obligatoire','error'); return; }
-
       const newProject = {
         id: appData.nextId++,
         title, description,
@@ -566,7 +826,9 @@
         d0:{ severity:'medium', reportedBy:'', reportDate:'', description:'' },
         d1:{ team:[{name:'', role:'member', dept:'', email:''}] },
         d2:{ what:'', where:'', when:'', who:'', how:'', howmuch:'' },
-        d3:{ text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' }
+        d3:{ text:'' }, d4:{ text:'' }, d5:{ text:'' }, d6:{ text:'' }, d7:{ text:'' }, d8:{ text:'' },
+        // Initialiser les fichiers joints pour le nouveau projet
+        files: { d0: [], d1: [], d2: [], d3: [], d4: [], d5: [], d6: [], d7: [], d8: [] }
       };
       appData.projects.unshift(newProject);
       closeModal();
@@ -575,7 +837,6 @@
       setTimeout(()=>openProject(newProject.id), 250);
       saveToStorage();
     }
-
     function duplicateProject(projectId){
       const original = getProject(projectId);
       if(!original) return;
@@ -586,12 +847,12 @@
       Object.keys(copy.steps).forEach(k=>copy.steps[k]='');
       copy.createdDate = today();
       copy.updatedDate = today();
+      // Les fichiers sont copiés aussi (par le JSON.stringify/parse)
       appData.projects.unshift(copy);
       showNotification('Projet dupliqué','success');
       renderDashboard();
       saveToStorage();
     }
-
     function deleteProject(projectId){
       if(!confirm('Supprimer ce projet ?')) return;
       appData.projects = appData.projects.filter(p => p.id !== projectId);
@@ -604,7 +865,6 @@
       showNotification('Projet supprimé','info');
       saveToStorage();
     }
-
     // ===================== FORMES & ÉTAPES =====================
     function markStepCompleted(step){
       if(!appData.activeProject) return;
@@ -629,7 +889,6 @@
       showNotification(`Étape ${step.toUpperCase()} réinitialisée`,'info');
       saveToStorage();
     }
-
     // D0 mapping
     function hydrateProjectForm(p){
       document.getElementById('problem-title').value = p.title || '';
@@ -647,7 +906,6 @@
       p.d0.reportDate = document.getElementById('report-date').value;
       p.d0.description = document.getElementById('problem-description').value.trim();
       p.updatedDate = today();
-
       // In progress if at least title or description set
       if((p.title && p.d0.description) && p.steps.d0!=='completed'){ p.steps.d0='in-progress'; }
       updateProjectHeader();
@@ -655,7 +913,6 @@
       renderProjects();
       saveToStorage();
     }
-
     // D1 team
     function hydrateTeamTable(team){
       const tbody = document.querySelector('#team-table tbody');
@@ -733,7 +990,6 @@
       if(hasAny && appData.activeProject.steps.d1!=='completed'){ appData.activeProject.steps.d1='in-progress'; }
       updateStepNavigation(appData.activeProject);
     }
-
     // Generic textareas D2-D8
     function hydrateTextareas(p){
       const map = {
@@ -760,7 +1016,6 @@
       p.updatedDate = today();
       updateStepNavigation(p); updateProjectHeader(); renderProjects(); saveToStorage();
     }
-
     // ===================== EXPORT / IMPORT =====================
     function exportJSON(){
       const dataStr = JSON.stringify(appData.projects, null, 2);
@@ -794,13 +1049,11 @@
       };
       reader.readAsText(file);
     }
-
     // ===================== ÉVÉNEMENTS =====================
     document.addEventListener('DOMContentLoaded', () => {
       // Charger stockage
       loadFromStorage();
       renderDashboard();
-
       // Boutons header
       document.getElementById('toggle-sidebar').onclick = ()=>document.getElementById('sidebar').classList.toggle('collapsed');
       document.getElementById('export-btn').onclick = exportJSON;
@@ -810,18 +1063,15 @@
         e.target.value = '';
       });
       document.getElementById('pdf-btn').onclick = ()=>window.print();
-
       // Dashboard & breadcrumb
       document.getElementById('new-project-btn').onclick = createNewProject;
       document.getElementById('dashboard-link').onclick = showDashboard;
       document.getElementById('breadcrumb-dashboard').onclick = showDashboard;
-
       // Modal
       document.getElementById('create-project-btn').onclick = createProject;
       document.getElementById('cancel-project-btn').onclick = closeModal;
       document.querySelector('.close-modal').onclick = closeModal;
       document.getElementById('new-project-modal').onclick = (e)=>{ if(e.target.id==='new-project-modal') closeModal(); };
-
       // Steps actions (event delegation)
       document.body.addEventListener('click', (e)=>{
         const completeBtn = e.target.closest('[data-complete]');
@@ -829,7 +1079,6 @@
         if(completeBtn){ markStepCompleted(completeBtn.getAttribute('data-complete')); }
         if(resetBtn){ resetStep(resetBtn.getAttribute('data-reset')); }
       });
-
       // Navigation vers les étapes
       document.querySelectorAll('a[data-step]').forEach(link=>{
         link.onclick = function(){
@@ -841,32 +1090,31 @@
           this.classList.add('active');
         };
       });
-
       // Inputs D0
       ['problem-title','problem-severity','reported-by','report-date','problem-description'].forEach(id=>{
         document.getElementById(id).addEventListener('input', readD0FromForm);
         document.getElementById(id).addEventListener('change', readD0FromForm);
       });
-
       // Table équipe
       document.getElementById('add-team-row').onclick = addTeamRow;
       document.querySelector('#team-table tbody').addEventListener('input', syncTeamToProject);
       document.querySelector('#team-table tbody').addEventListener('change', syncTeamToProject);
-
       // Textareas D2-D8
       ['d2-what','d2-where','d2-when','d2-who','d2-how','d2-howmuch','d3-text','d4-text','d5-text','d6-text','d7-text','d8-text']
         .forEach(id => document.getElementById(id).addEventListener('input', syncTextareasToProject));
-
       // Raccourcis
       document.onkeydown = function(e){
         if(e.ctrlKey && e.key === 'n'){ e.preventDefault(); createNewProject(); }
         if(e.key === 'Escape'){ closeModal(); }
       };
-
       window.addEventListener('beforeunload', saveToStorage);
     });
-
-    // Exposer
+    // Exposer les fonctions de gestion de fichiers
+    window.addFileInput = addFileInput;
+    window.uploadFiles = uploadFiles;
+    window.downloadFile = downloadFile;
+    window.deleteFile = deleteFile;
+    // Exposer les autres fonctions existantes
     window.createNewProject = createNewProject;
     window.duplicateProject = duplicateProject;
     window.deleteProject = deleteProject;
